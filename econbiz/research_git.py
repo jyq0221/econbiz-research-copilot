@@ -16,7 +16,7 @@ def _git(workspace, *args):
     executable = shutil.which('git')
     if executable is None:
         raise WorkflowError('Git 不可用；本地文件历史仍可使用')
-    result = subprocess.run([executable, '-C', str(workspace.root), *args], capture_output=True, text=True)
+    result = subprocess.run([executable, '--literal-pathspecs', '-C', str(workspace.root), *args], capture_output=True, text=True)
     if result.returncode:
         raise WorkflowError(f'Git 操作未完成：{result.stderr.strip() or result.stdout.strip()}')
     return result.stdout.strip()

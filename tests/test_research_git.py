@@ -81,3 +81,16 @@ class ResearchGitTests(unittest.TestCase):
         with self.assertRaises(WorkflowError):
             commit_changes(self.ws, ['research/code/analysis.py'], '缺身份')
         self.assertEqual(self.git('diff', '--cached', '--name-only'), '')
+
+    def test_pattern_characters_in_filename_do_not_expand_scope(self):
+        selected = self.code.parent / 'analysis[1].py'
+        unrelated = self.code.parent / 'analysis1.py'
+        selected.write_text('selected = True\n')
+        unrelated.write_text('unrelated = True\n')
+        path = 'research/code/analysis[1].py'
+        enable_git(self.ws, [path])
+        self.git('config', '--local', 'user.name', 'Synthetic Test')
+        self.git('config', '--local', 'user.email', 'synthetic@example.invalid')
+        self.assertEqual(preview_changes(self.ws, [path])['paths'], [path])
+        commit_changes(self.ws, [path], '仅提交指定文件')
+        self.assertEqual(self.git('ls-files').splitlines(), [path])

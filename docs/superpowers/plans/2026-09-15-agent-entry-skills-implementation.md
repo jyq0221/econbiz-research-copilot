@@ -10,11 +10,11 @@
 
 ---
 
-日期：2026-09-15。状态：计划已整理，任务均未执行。
+日期：2026-09-15。状态：任务 0—9 的代码和文档已实现；任务 10 的验收结果见[阶段 A 验证记录](../../agent-entry-validation.md)。Claude Code、跨宿主交接和三名目标初学者试用尚未完成。
 
 设计依据：[入口与 Skills 设计方案 v0.3](../specs/2026-09-15-agent-entry-skills-design.md)。本地基线：[实施前检查](../../implementation-readiness.md)。
 
-用户本轮明确选择“检查并整理实施计划”。本文件不表示已创建入口或实现新功能。开始实施时沿已有任务顺序执行，不默认启动子代理或新任务；工作方式如需调整，遵循用户当时的选择。
+原计划整理后，用户已明确要求开始阶段 A 实施并考虑删除无关教程。继续使用 codex/framework-foundation 本地分支，未推送；代码审查及 Skill 基线使用适用技能要求的只读子代理，产品研究流程仍保持单个写入者。
 
 ## 一、交付范围和顺序
 
@@ -147,8 +147,8 @@ Git 可选功能不阻塞不使用 Git 的研究准备试用；某宿主未完�
 
 **Files:** 审阅当前 `README.md`、`.gitignore`、`pyproject.toml`、`econbiz/`、`docs/`、`examples/`、`tests/`。保留被忽略的教学预览，不纳入基线。
 
-- [ ] 重新检查 `git status --short --branch` 和 `git ls-files`，确认自本计划写成后没有其他任务新增变化。
-- [ ] 运行完整既有测试。命令与预期：
+- [x] 重新检查 `git status --short --branch` 和 `git ls-files`，确认自本计划写成后没有其他任务新增变化。
+- [x] 运行完整既有测试。命令与预期：
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -156,7 +156,7 @@ python3 -m unittest discover -s tests -v
 
 基线预期为 56 项通过；若已有其他合法新增测试，记录新计数及差异原因。
 
-- [ ] 审阅明确目录后暂存；检查缓存、真实材料和教学预览未进入暂存区：
+- [x] 审阅明确目录后暂存；检查缓存、真实材料和教学预览未进入暂存区：
 
 ```sh
 git add -- README.md .gitignore pyproject.toml econbiz docs examples tests
@@ -165,19 +165,19 @@ git diff --cached --stat
 git diff --cached --name-only
 ```
 
-- [ ] 创建可恢复的本地基线提交：
+- [x] 创建可恢复的本地基线提交：
 
 ```sh
 git commit -m "chore: preserve research copilot foundation and agent-entry design"
 ```
 
-- [ ] 检查当前隔离方式。新 worktree 必须基于这个完整提交，否则只会得到初始 README；是否使用 worktree 遵循用户偏好和宿主规则。新功能分支采用 `codex/` 前缀。此任务无需推送远程。
+- [x] 检查当前隔离方式。新 worktree 必须基于这个完整提交，否则只会得到初始 README；是否使用 worktree 遵循用户偏好和宿主规则。新功能分支采用 `codex/` 前缀。此任务无需推送远程。
 
 ### 任务 1：统一文件引用和内容校验
 
 **Files:** 新建 `econbiz/files.py`、`tests/test_files.py`；修改 `econbiz/state.py`、`econbiz/candidates.py`；扩展 `tests/test_state.py`、`tests/test_candidates.py`。
 
-- [ ] 先写文件引用回归测试，覆盖相对路径、外部来源、逃逸、内容变化和丢失。以下测试代码放入 `tests/test_files.py`：
+- [x] 先写文件引用回归测试，覆盖相对路径、外部来源、逃逸、内容变化和丢失。以下测试代码放入 `tests/test_files.py`：
 
 ```python
 import tempfile
@@ -212,17 +212,17 @@ class FileTests(unittest.TestCase):
                 describe_file(root, source, scope='project', role='raw_data')
 ```
 
-- [ ] 运行 `python3 -m unittest discover -s tests -p 'test_files.py' -v`，确认失败原因是新接口未实现。
-- [ ] 实现 `describe_file(root, path, *, scope, role)` 和 `read_verified(root, reference)`。前者解析受控路径、流式计算 SHA-256、记录字节数；后者先验证 scope、路径和实际内容再返回 bytes。路径校验拒绝项目外解析结果；文件系统错误转为含具体材料位置的 `WorkflowError`。
-- [ ] 完成第 3.1 节 Project 扩展。`_validate()` 验证 files 类型/摘要/长度及历史条目；`require_usable()` 在消费时核对内容。`read_inventory_bytes()` 支持旧 `input_path`；所有新盘点优先使用 `input_ref`。
-- [ ] 把 `candidates.py` 的直接 `Path(report['input_path']).read_bytes()` 改为 `project.read_inventory_bytes(inventory_id)`，把 `Project(project.snapshot())` 改为 `project.clone()`。
-- [ ] 增加 Project 相对输入的保存/重载、旧绝对输入、复制后路径上下文不丢失测试；执行相关测试与全套原有测试，再提交本任务文件。
+- [x] 运行 `python3 -m unittest discover -s tests -p 'test_files.py' -v`，确认失败原因是新接口未实现。
+- [x] 实现 `describe_file(root, path, *, scope, role)` 和 `read_verified(root, reference)`。前者解析受控路径、流式计算 SHA-256、记录字节数；后者先验证 scope、路径和实际内容再返回 bytes。路径校验拒绝项目外解析结果；文件系统错误转为含具体材料位置的 `WorkflowError`。
+- [x] 完成第 3.1 节 Project 扩展。`_validate()` 验证 files 类型/摘要/长度及历史条目；`require_usable()` 在消费时核对内容。`read_inventory_bytes()` 支持旧 `input_path`；所有新盘点优先使用 `input_ref`。
+- [x] 把 `candidates.py` 的直接 `Path(report['input_path']).read_bytes()` 改为 `project.read_inventory_bytes(inventory_id)`，把 `Project(project.snapshot())` 改为 `project.clone()`。
+- [x] 增加 Project 相对输入的保存/重载、旧绝对输入、复制后路径上下文不丢失测试；执行相关测试与全套原有测试，再提交本任务文件。
 
 ### 任务 2：三类目录和真实文件版本
 
 **Files:** 新建 `econbiz/workspace.py`、`tests/test_workspace.py`；扩展 `econbiz/files.py`；修改 `econbiz/cli.py` 的建项与输出路径适配，保留旧接口。
 
-- [ ] 在 `tests/test_workspace.py` 写建项与旧版恢复内容的测试：
+- [x] 在 `tests/test_workspace.py` 写建项与旧版恢复内容的测试：
 
 ```python
 import tempfile
@@ -256,18 +256,18 @@ class WorkspaceTests(unittest.TestCase):
                 Workspace.create(root, 'study', '不能覆盖')
 ```
 
-- [ ] 运行 `python3 -m unittest discover -s tests -p 'test_workspace.py' -v`，观察新接口缺失导致的失败。
-- [ ] 依第 3.2 节实现 create/open/path/import_file/audit。布局映射作为 `workspace_layout` 产物登记；仅创建三个主目录和当前操作需要的子目录。不可覆盖的版本文件写入前先计算内容与目标路径，若目标已经存在，只允许经校验的完全相同内容重试。
-- [ ] 增加通用保存步骤：先在 Project 副本完成校验 → 写版本文件 → 原子保存状态 → 更新实例。此任务的保存回执说明 `state_saved=true`、`view_saved=false` 和“进度视图尚未接入”；阅读视图在任务 5 接入，不提前依赖不存在的 progress 模块。失败时保留可检查的孤立文件，原有状态仍然可用；重试不能把未登记文件当成已完成产物。
-- [ ] 新 CSV inventory 绑定 source 版本，保存实际报告及 `input_ref`。结构错误的报告仍保存为 failed；新版来源使旧盘点与方案不能继续消费。
-- [ ] 用 `unittest.mock.patch` 在状态保存前后注入 `OSError`，检查旧状态可读、孤立文件不会被自动登记；另测损坏状态不另建项目、旧 reports 布局可读、无效路径不写入。
-- [ ] 原命令的用法保持兼容，新建项目输出遵循新布局；针对既有命令的测试修改仅用于验证路径变化，不删除原行为断言。运行全套测试并提交。
+- [x] 运行 `python3 -m unittest discover -s tests -p 'test_workspace.py' -v`，观察新接口缺失导致的失败。
+- [x] 依第 3.2 节实现 create/open/path/import_file/audit。布局映射作为 `workspace_layout` 产物登记；仅创建三个主目录和当前操作需要的子目录。不可覆盖的版本文件写入前先计算内容与目标路径，若目标已经存在，只允许经校验的完全相同内容重试。
+- [x] 增加通用保存步骤：先在 Project 副本完成校验 → 写版本文件 → 原子保存状态 → 更新实例。此任务的保存回执说明 `state_saved=true`、`view_saved=false` 和“进度视图尚未接入”；阅读视图在任务 5 接入，不提前依赖不存在的 progress 模块。失败时保留可检查的孤立文件，原有状态仍然可用；重试不能把未登记文件当成已完成产物。
+- [x] 新 CSV inventory 绑定 source 版本，保存实际报告及 `input_ref`。结构错误的报告仍保存为 failed；新版来源使旧盘点与方案不能继续消费。
+- [x] 用 `unittest.mock.patch` 在状态保存前后注入 `OSError`，检查旧状态可读、孤立文件不会被自动登记；另测损坏状态不另建项目、旧 reports 布局可读、无效路径不写入。
+- [x] 原命令的用法保持兼容，新建项目输出遵循新布局；针对既有命令的测试修改仅用于验证路径变化，不删除原行为断言。运行全套测试并提交。
 
 ### 任务 3：检查点、比较和恢复
 
 **Files:** 新建 `econbiz/checkpoints.py`、`tests/test_checkpoints.py`；扩展 `tests/test_workspace.py`。
 
-- [ ] 在 `tests/test_checkpoints.py` 使用以下首个回归测试：
+- [x] 在 `tests/test_checkpoints.py` 使用以下首个回归测试：
 
 ```python
 import tempfile
@@ -297,20 +297,20 @@ class CheckpointTests(unittest.TestCase):
             self.assertEqual(len(workspace.project.snapshot()['history']['data']), 2)
 ```
 
-- [ ] 运行 `python3 -m unittest discover -s tests -p 'test_checkpoints.py' -v`，先验证失败。
-- [ ] 实现第 3.4 节三个接口。检查点 JSON 与其 SHA-256 单独写入不可覆盖目录；清单包含状态快照与文件核验结果。返回对象至少含 `id`、`path`、`file_status`；对比返回 `added/removed/changed/dependency_changes/file_status`。
-- [ ] 恢复前读取实际旧文件并比较摘要及旧依赖。恢复调用显式 revise，不以旧 snapshot 替换当前状态，不删除结果历史或决定。恢复计划的状态保持 needs_decision。
-- [ ] 错误注入覆盖：旧文件丢失、旧文件被篡改、外部来源失效、依赖版本不符、检查点写入中断；能保存“不完整”状态，但不能报告完整可恢复。
-- [ ] 验证连续两个检查点未重复复制数据字节，恢复后的下游仍过期。运行相关和全套测试并提交。
+- [x] 运行 `python3 -m unittest discover -s tests -p 'test_checkpoints.py' -v`，先验证失败。
+- [x] 实现第 3.4 节三个接口。检查点 JSON 与其 SHA-256 单独写入不可覆盖目录；清单包含状态快照与文件核验结果。返回对象至少含 `id`、`path`、`file_status`；对比返回 `added/removed/changed/dependency_changes/file_status`。
+- [x] 恢复前读取实际旧文件并比较摘要及旧依赖。恢复调用显式 revise，不以旧 snapshot 替换当前状态，不删除结果历史或决定。恢复计划的状态保持 needs_decision。
+- [x] 错误注入覆盖：旧文件丢失、旧文件被篡改、外部来源失效、依赖版本不符、检查点写入中断；能保存“不完整”状态，但不能报告完整可恢复。
+- [x] 验证连续两个检查点未重复复制数据字节，恢复后的下游仍过期。运行相关和全套测试并提交。
 
 ### 任务 4：科研讨论、证据与确认摘录
 
 **Files:** 新建 `econbiz/records.py`、`tests/test_records.py`；实现 `Workspace.save_record()`；新建手册 `project-records.md`。
 
-- [ ] 建立第 3.3 节六种记录的合法/非法输入用例；每类至少覆盖一项会误导研究的缺失信息：文献没有实际来源、metadata 冒充全文发现、决定没有具体版本、摘要伪造平台标识、概念草案假造数据、完成任务无有效产物。
-- [ ] 实现 `validate_record(kind, content, project)`：先复制为有限 JSON，逐项检查字段类型与非空文本、枚举值、来源版本和 outputs 引用，验证失败不修改 Project。未知 kind 拒绝登记；普通用户备注放入已定义记录的 notes 字段。
-- [ ] 实现 `Workspace.save_record()`：每个版本同时保存结构化 JSON 与可读 Markdown；正文使用记录内容，文件路径按 kind 对应目录。程序格式检查通过时写明其检查范围，不能自动提高 `evidence_status`。
-- [ ] 实际确认按以下顺序接入现有 approve，摘录路径由工具返回，不手填虚构路径：
+- [x] 建立第 3.3 节六种记录的合法/非法输入用例；每类至少覆盖一项会误导研究的缺失信息：文献没有实际来源、metadata 冒充全文发现、决定没有具体版本、摘要伪造平台标识、概念草案假造数据、完成任务无有效产物。
+- [x] 实现 `validate_record(kind, content, project)`：先复制为有限 JSON，逐项检查字段类型与非空文本、枚举值、来源版本和 outputs 引用，验证失败不修改 Project。未知 kind 拒绝登记；普通用户备注放入已定义记录的 notes 字段。
+- [x] 实现 `Workspace.save_record()`：每个版本同时保存结构化 JSON 与可读 Markdown；正文使用记录内容，文件路径按 kind 对应目录。程序格式检查通过时写明其检查范围，不能自动提高 `evidence_status`。
+- [x] 实际确认按以下顺序接入现有 approve，摘录路径由工具返回，不手填虚构路径：
 
 ```python
 from econbiz.state import now
@@ -329,17 +329,17 @@ workspace.save()
 
 其中 `recorded_at` 使用实际本地记录时间；`plan-001` 必须先用现有 `register_plan()` 登记且具备执行确认所需字段，任务 6 再扩展其证据与讨论依赖。普通讨论的赞同仅存记录，不调用 approve。
 
-- [ ] 添加同一事实更正后旧文献解释/概念草案依赖过期测试；确认第一个版本仍可读，新会话能读到更正来源。
-- [ ] 执行 `python3 -m unittest discover -s tests -p 'test_records.py' -v` 及全部既有测试，记录失败到通过，再提交。
+- [x] 添加同一事实更正后旧文献解释/概念草案依赖过期测试；确认第一个版本仍可读，新会话能读到更正来源。
+- [x] 执行 `python3 -m unittest discover -s tests -p 'test_records.py' -v` 及全部既有测试，记录失败到通过，再提交。
 
 ### 任务 5：持续任务、科研进度和恢复入口
 
 **Files:** 新建 `econbiz/progress.py`、`tests/test_progress.py`；扩展 `records.py` 和 Workspace 保存链。
 
-- [ ] 增加测试：没有数据也能保存研究方向；会话摘要保存输出和授权范围；新 Agent 能读取最新更正；旧概览不覆盖有效状态；任务输入变化后已完成任务需复核；两个项目互不混用。
-- [ ] 实现 `render_progress(project)` 返回 Markdown，`resume_context(workspace)` 返回可读结构化摘要；枚举事实、当前有效方案、任务/阻塞和下一步，消费前用实际材料校验，不把失败的数值结果渲染为已核对结论。
-- [ ] 把任务业务状态与保存状态分别展示：例如“任务：等待字段说明；记录：已保存”。completed 任务校验有效 outputs，等待任务校验 blocked_reason；父级输入更新使已完成任务进入需要重新检查的展示状态。
-- [ ] 保存进度视图失败时保持权威状态不回滚。测试使用以下故障注入结构，`render_progress` patch 的目标应是 Workspace 实际引用处：
+- [x] 增加测试：没有数据也能保存研究方向；会话摘要保存输出和授权范围；新 Agent 能读取最新更正；旧概览不覆盖有效状态；任务输入变化后已完成任务需复核；两个项目互不混用。
+- [x] 实现 `render_progress(project)` 返回 Markdown，`resume_context(workspace)` 返回可读结构化摘要；枚举事实、当前有效方案、任务/阻塞和下一步，消费前用实际材料校验，不把失败的数值结果渲染为已核对结论。
+- [x] 把任务业务状态与保存状态分别展示：例如“任务：等待字段说明；记录：已保存”。completed 任务校验有效 outputs，等待任务校验 blocked_reason；父级输入更新使已完成任务进入需要重新检查的展示状态。
+- [x] 保存进度视图失败时保持权威状态不回滚。测试使用以下故障注入结构，`render_progress` patch 的目标应是 Workspace 实际引用处：
 
 ```python
 from unittest.mock import patch
@@ -355,15 +355,15 @@ self.assertFalse(receipt['view_saved'])
 
 `Workspace.root` 为规范化后的当前项目路径；Workspace.open 不依赖进度视图存在。
 
-- [ ] 用户直接改概览时，用保存时记录的视图摘要发现改动；将其作为待核实用户输入展示并保留修改副本，再按实际明确意思登记，不直接写回权威状态。
-- [ ] 为维护者提供可运行的保存/恢复 Python 示例，调用公共接口；每个示例在测试临时目录跑通。运行 `test_progress.py` 和全套测试并提交。
+- [x] 用户直接改概览时，用保存时记录的视图摘要发现改动；将其作为待核实用户输入展示并保留修改副本，再按实际明确意思登记，不直接写回权威状态。
+- [x] 为维护者提供可运行的保存/恢复 Python 示例，调用公共接口；每个示例在测试临时目录跑通。运行 `test_progress.py` 和全套测试并提交。
 
 ### 任务 6：Agent 方案入口及共同探索规则
 
 **Files:** 新建 `econbiz/research_history.py`、`tests/test_research_history.py`；修改 `plans.py`、`candidates.py`、`state.py`；扩展 `tests/test_plans.py`。
 
-- [ ] 将 `has_prior_results(project)` 原实现原样移到 research_history，并在 candidates 中导入，保持原公开导入路径可用；先运行原有候选方案测试验证未改变行为。
-- [ ] 在 plans 中扩展下列接口，所有调用先校验再变更：
+- [x] 将 `has_prior_results(project)` 原实现原样移到 research_history，并在 candidates 中导入，保持原公开导入路径可用；先运行原有候选方案测试验证未改变行为。
+- [x] 在 plans 中扩展下列接口，所有调用先校验再变更：
 
 ```python
 register_plan(project, plan_id, content, inventory_id,
@@ -374,9 +374,9 @@ revise_plan(project, plan_id, content, reason,
 
 函数接受未加新参数的旧调用。依赖仍须恰有一个 inventory，其他依赖为具体证据/讨论记录；不能把缺少数据的概念草案伪装为正式 plan。
 
-- [ ] 实现共同 `prepare_plan_content(project, content)`：复制输入，检查项目全部结果与历史。如果在已有结果后新增或修订分析内容而未写有效 exploration_reason，拒绝登记；有理由时规范为 exploratory，保留原因；不改写研究目标或模型。确认操作核对已登记计划的提出/修订记录，不因确认当时已有结果而把此前未改变的计划重新归类；按既定授权重跑同样不改写原计划性质。
-- [ ] 对通用 `Project.revise()` 的 plan 内容修订分支也调用共同校验，防止直接修订绕过探索规则。文件重新定位沿任务 2 的接口完成，不伪装成新研究设定。公共历史检查放在独立模块，避免 candidates 与 plans 循环导入。
-- [ ] 使用原 `tests/test_plans.py` 的 `candidate()`，补以下测试方法：
+- [x] 实现共同 `prepare_plan_content(project, content)`：复制输入，检查项目全部结果与历史。如果在已有结果后新增或修订分析内容而未写有效 exploration_reason，拒绝登记；有理由时规范为 exploratory，保留原因；不改写研究目标或模型。确认操作核对已登记计划的提出/修订记录，不因确认当时已有结果而把此前未改变的计划重新归类；按既定授权重跑同样不改写原计划性质。
+- [x] 对通用 `Project.revise()` 的 plan 内容修订分支也调用共同校验，防止直接修订绕过探索规则。文件重新定位沿任务 2 的接口完成，不伪装成新研究设定。公共历史检查放在独立模块，避免 candidates 与 plans 循环导入。
+- [x] 使用原 `tests/test_plans.py` 的 `candidate()`，补以下测试方法：
 
 ```python
 def test_agent_plan_after_results_keeps_exploration_history(self):
@@ -390,16 +390,16 @@ def test_agent_plan_after_results_keeps_exploration_history(self):
     self.assertEqual(self.p.artifact('new-plan')['content']['purpose'], 'exploratory')
 ```
 
-- [ ] 覆盖证据修订→计划过期、依赖新增/删除、循环依赖拒绝、失败不污染对象、确认绑定具体版本；增加“结果前已登记且未改变的计划，在有其他结果后确认时仍保留原性质”测试，同时保留已存在的 DID 不降格和标准误选项检查。
-- [ ] 更新旧 teaching candidate 路径，使其共用登记/探索逻辑，同时保留 comparison 依赖。运行 plans/history/candidates/state 测试及全套测试，提交。
+- [x] 覆盖证据修订→计划过期、依赖新增/删除、循环依赖拒绝、失败不污染对象、确认绑定具体版本；增加“结果前已登记且未改变的计划，在有其他结果后确认时仍保留原性质”测试，同时保留已存在的 DID 不降格和标准误选项检查。
+- [x] 更新旧 teaching candidate 路径，使其共用登记/探索逻辑，同时保留 comparison 依赖。运行 plans/history/candidates/state 测试及全套测试，提交。
 
 ### 任务 7：编写五个 Skills 与共用手册
 
 **Files:** `AGENTS.md`、`CLAUDE.md`、五个 `.agents/skills/econbiz-*/SKILL.md` 及 assets，共享手册。
 
-- [ ] 实施时先读取 skill-creator/writing-skills 的适用要求。用真实任务观察基线行为：含糊方向、论文证据、缺失值、继续项目、维护仓库；记录已有 Agent 是否会漏读材料或混淆任务，不用虚构转录冒充验证。
-- [ ] 创建简短 AGENTS：开发/维护请求按开发任务处理；用户实际研究请求读取统一 Skill；只在确实开始研究时建项；明确数据事实、研究选择、现有授权、保存及恢复。CLAUDE 使用 `@AGENTS.md` 并定位同名项目 Skills。
-- [ ] 五个 Skills 的发现描述使用自然任务语言，职责按设计第 4.5—4.7 节。主技能 frontmatter 起点为：
+- [x] 实施时先读取 skill-creator/writing-skills 的适用要求。用真实任务观察基线行为：含糊方向、论文证据、缺失值、继续项目、维护仓库；记录已有 Agent 是否会漏读材料或混淆任务，不用虚构转录冒充验证。
+- [x] 创建简短 AGENTS：开发/维护请求按开发任务处理；用户实际研究请求读取统一 Skill；只在确实开始研究时建项；明确数据事实、研究选择、现有授权、保存及恢复。CLAUDE 使用 `@AGENTS.md` 并定位同名项目 Skills。
+- [x] 五个 Skills 的发现描述使用自然任务语言，职责按设计第 4.5—4.7 节。主技能 frontmatter 起点为：
 
 ```yaml
 ---
@@ -408,19 +408,19 @@ description: Use when the user starts, continues, or organizes an economics or b
 ---
 ```
 
-- [ ] 各 Skill 正文包含“何时使用、先读哪些材料、如何判断与执行、实际输出、检查与信息不足处理”；research 负责保存/路由，专项技能处理方法。首版 analysis 只承诺当前已实现工具，interpret 对外部结果标明未复现。
-- [ ] 实现六类模板：任务卡（research）、文献卡与判断—来源表（evidence）、候选方案比较（design）、分析与表图规划（analysis）、判断—结果表（interpret）、进度概览（research）。每个字段解释输入来源和未知处理；正式记录由公共接口保存。
-- [ ] tool-contracts 手册为 create/import/audit/save_record/register_plan/approve/checkpoint/resume 各提供一段可复制的 Python 示例，示例先在临时目录实际执行，再写入文档。概念咨询示例不触发建项。
-- [ ] teaching-cases 使用设计的三个情境，数值明确标注合成；记录当前能执行的检查及阶段 B 才能核对的估计，不填入预期显著性。
-- [ ] 验证普通概念问答不会被强制建任务卡，用户选择内部 Skill 无需审批，实质研究选择沿已有授权规则处理。提交本任务文件；不把仅创建 SKILL.md 记成宿主已验证。
+- [x] 各 Skill 正文包含“何时使用、先读哪些材料、如何判断与执行、实际输出、检查与信息不足处理”；research 负责保存/路由，专项技能处理方法。首版 analysis 只承诺当前已实现工具，interpret 对外部结果标明未复现。
+- [x] 实现六类模板：任务卡（research）、文献卡与判断—来源表（evidence）、候选方案比较（design）、分析与表图规划（analysis）、判断—结果表（interpret）、进度概览（research）。每个字段解释输入来源和未知处理；正式记录由公共接口保存。
+- [x] tool-contracts 手册为 create/import/audit/save_record/register_plan/approve/checkpoint/resume 各提供一段可复制的 Python 示例，示例先在临时目录实际执行，再写入文档。概念咨询示例不触发建项。
+- [x] teaching-cases 使用设计的三个情境，数值明确标注合成；记录当前能执行的检查及阶段 B 才能核对的估计，不填入预期显著性。
+- [x] 验证普通概念问答不会被强制建任务卡，用户选择内部 Skill 无需审批，实质研究选择沿已有授权规则处理。提交本任务文件；不把仅创建 SKILL.md 记成宿主已验证。
 
 ### 任务 8：双宿主打包和可移植性
 
 **Files:** `scripts/sync_skills.py`、`.claude/skills/`、`tests/test_skills_package.py`、`tests/agent_cases/cases.json`。
 
-- [ ] 写测试：五个维护源缺一报错；同名副本正文或 assets 差异报错；绝对本机路径/断链报错；不能把其他用户 Skill 当同步目标。
-- [ ] 实现同步与检查两个模式，只处理明确列出的五个 econbiz Skill。同步使用普通文件复制，删除的旧资源仅在这些受管子目录内清理；其他 Skills 不动。检查模式不写入任何文件。
-- [ ] 维护者运行：
+- [x] 写测试：五个维护源缺一报错；同名副本正文或 assets 差异报错；绝对本机路径/断链报错；不能把其他用户 Skill 当同步目标。
+- [x] 实现同步与检查两个模式，只处理明确列出的五个 econbiz Skill。同步使用普通文件复制，删除的旧资源仅在这些受管子目录内清理；其他 Skills 不动。检查模式不写入任何文件。
+- [x] 维护者运行：
 
 ```sh
 python3 scripts/sync_skills.py
@@ -430,36 +430,38 @@ python3 -m unittest discover -s tests -p 'test_skills_package.py' -v
 
 同步后第二条应退出 0；人为改动临时副本后检查应非零并指出具体文件。用户 clone 后无需运行同步。
 
-- [ ] 共享资源相对于工具仓库根解析；测试带中文和空格的复制目录。测试同时检查 AGENTS 与 CLAUDE 的入口引用，不用“含某句固定话”证明真实路由正确。
-- [ ] 以 `cases.json` 保存行为案例的 id/request/input_fixture/expected_actions/prohibited_actions/required_artifacts，不存 API 密钥、不在工具仓库调用模型 API。
-- [ ] 同步完成且静态检查通过后，提交两个宿主目录及检查脚本；真实宿主验证在任务 10 执行。
+- [x] 共享资源相对于工具仓库根解析；测试带中文和空格的复制目录。测试同时检查 AGENTS 与 CLAUDE 的入口引用，不用“含某句固定话”证明真实路由正确。
+- [x] 以 `cases.json` 保存行为案例的 id/request/input_fixture/expected_actions/prohibited_actions/required_artifacts，不存 API 密钥、不在工具仓库调用模型 API。
+- [x] 同步完成且静态检查通过后，提交两个宿主目录及检查脚本；真实宿主验证在任务 10 执行。
 
 ### 任务 9：可选的单项研究 Git
 
 **Files:** `econbiz/research_git.py`、`tests/test_research_git.py`、`docs/research-handbook/project-records.md`。
 
-- [ ] 所有测试使用临时父级工具仓库与子级研究项目。设置临时测试仓库身份，不读写用户全局 Git 配置。
-- [ ] 定义 `enable_git(workspace, tracked_paths)` 与 `commit_changes(workspace, paths, message)`。路径必须属于当前研究且落在预先登记的跟踪范围；原始/大体积数据、论文全文和密钥不在默认范围。启用记录用户选择的范围；不自动添加 remote。
-- [ ] 实现时显式校验 `git rev-parse --show-toplevel` 等于研究根。没有独立研究仓库时不得让 Git 向上发现并改动工具仓库。
-- [ ] 提交使用参数数组和显式 cwd；message 作为单个参数，不拼接 shell。只暂存指定文件；发现已有暂存内容或同一文件的归属不明改动时返回可读冲突说明，不顺带提交用户其他修改。
-- [ ] 测试未安装 Git/无身份的失败返回；研究文件历史仍可保存。禁止调用 push、remote add 或全局 config；拒绝越界文件；只读预览提交清单后再执行已有授权范围内的提交。
-- [ ] 验证 Agent 仍从工具根加载入口。单独打开嵌套研究仓库的适配属于另行验证范围，说明中明确这个条件。
-- [ ] 执行 `python3 -m unittest discover -s tests -p 'test_research_git.py' -v` 和全套测试，提交。
+- [x] 所有测试使用临时父级工具仓库与子级研究项目。设置临时测试仓库身份，不读写用户全局 Git 配置。
+- [x] 定义 `enable_git(workspace, tracked_paths)` 与 `commit_changes(workspace, paths, message)`。路径必须属于当前研究且落在预先登记的跟踪范围；原始/大体积数据、论文全文和密钥不在默认范围。启用记录用户选择的范围；不自动添加 remote。
+- [x] 实现时显式校验 `git rev-parse --show-toplevel` 等于研究根。没有独立研究仓库时不得让 Git 向上发现并改动工具仓库。
+- [x] 提交使用参数数组和显式 cwd；message 作为单个参数，不拼接 shell。只暂存指定文件；发现已有暂存内容或同一文件的归属不明改动时返回可读冲突说明，不顺带提交用户其他修改。
+- [x] 测试未安装 Git/无身份的失败返回；研究文件历史仍可保存。禁止调用 push、remote add 或全局 config；拒绝越界文件；只读预览提交清单后再执行已有授权范围内的提交。
+- [x] 验证 Agent 仍从工具根加载入口。单独打开嵌套研究仓库的适配属于另行验证范围，说明中明确这个条件。
+- [x] 执行 `python3 -m unittest discover -s tests -p 'test_research_git.py' -v` 和全套测试，提交。
 
 ### 任务 10：集成、宿主实测与对外说明
 
 **Files:** `tests/agent_cases/README.md`、`docs/agent-entry-validation.md`、`README.md`、`docs/development-guide.md`、`docs/design-and-development-standard.md`。
 
-- [ ] 固定设计 v0.3 与当前实现提交；运行自动化测试和同步检查，保存真实命令、环境、计数及失败记录。
+- [x] 固定设计 v0.3 与当前实现提交；运行自动化测试和同步检查，保存真实命令、环境、计数及失败记录。
 - [ ] 在单独的干净克隆中用已可用的 Codex 和 Claude Code 实测，不用本维护目录里的教学预览假冒用户研究。记录宿主版本、模型、系统、工具能力、读取 Skill 的证据及实际输出。
 - [ ] 每个宿主至少测试：模糊方向、已有论文、CSV 合并/缺失问题、外部回归表、老师反馈、无数据概念草案、明确点名 Skill、跨阶段切换、开发仓库请求、缺少工具。
 - [ ] 顺序接续测试：一方保存讨论、更正、方案与任务后结束写入，另一方读取同一项目；核对恢复的来源、有效版本及下一步。不得在两边同时写入。
-- [ ] 文件恢复测试：创建两个材料版本和检查点，改坏最新文件、删除概览、模拟中断，分别核对可恢复范围和无法恢复的实际缺失。
-- [ ] 对缺少的宿主/工具标记“未验证”并保留可复现步骤，继续完成独立可做的验收；不要仅为消除未验证标记捏造通过结论。
-- [ ] 更新学生 README：自然语言使用步骤、首条请求示例、当前可用能力、文件位置和继续方法。开发命令与测试细节留在开发说明；原固定规则问答保留为内部教学工具。
-- [ ] 将方法标准更新为注明 Agent 入口和阶段交付的下一版本，保持企业年度面板、正式计算范围、结果后探索及确认规则不变；旧标准变化在修订记录中说明。
+- [x] 文件恢复测试：创建两个材料版本和检查点，改坏最新文件、删除概览、模拟中断，分别核对可恢复范围和无法恢复的实际缺失。
+- [x] 对缺少的宿主/工具标记“未验证”并保留可复现步骤，继续完成独立可做的验收；不要仅为消除未验证标记捏造通过结论。
+- [x] 更新学生 README：自然语言使用步骤、首条请求示例、当前可用能力、文件位置和继续方法。开发命令与测试细节留在开发说明；原固定规则问答保留为内部教学工具。
+- [x] 将方法标准更新为注明 Agent 入口和阶段交付的下一版本，保持企业年度面板、正式计算范围、结果后探索及确认规则不变；旧标准变化在修订记录中说明。
 - [ ] 至少邀请 3 名目标初学者完成短任务，记录理解问题、样本变化和续接的困难。无法当轮开展时如实记录未完成，不能宣称教学有效性已验证。
-- [ ] 最终审阅发布文件与能力声明，再提交本批变更。推送由明确发布请求触发；Git 提交与自动化测试通过均不替代真实宿主行为验收。
+- [x] 最终审阅发布文件与能力声明，再提交本批变更。推送由明确发布请求触发；Git 提交与自动化测试通过均不替代真实宿主行为验收。
+
+任务 10 补记：Codex 十个情境及一次独立新会话接续已实际完成，四项首次超时后重试成功；原失败记录保留。跨阶段情境首次遗漏 analysis 读取，在 1cd0894 修复并实际复测通过。上述要求覆盖两个宿主，因缺 Claude Code 未将相应整项勾选。程序层面的更正、版本恢复和中断检查已通过；三名初学者试用未开展。
 
 ## 五、失败与恢复规则
 
@@ -492,7 +494,7 @@ python3 -m unittest discover -s tests -p 'test_skills_package.py' -v
 
 ## 七、统一验证命令
 
-下列命令在相应实现落地后运行；本次计划整理尚未生成同步脚本或新测试。
+下列命令已在阶段 A 集成中运行；实际环境、计数和宿主结果记录在验收文档。
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -507,7 +509,17 @@ git diff --cached --check
 
 本计划复选框跟踪产品开发，不使用用户科研 `research_state.json`。每完成一个任务，补记实际改动文件、测试结果、提交标识和未完成条件，下一任务沿有效结果继续。
 
-当前只完成实施前检查和本计划编写，任务 0—10 均未执行。最先开展任务 0，再依次实现 1—6；入口文件在工具契约可用后接入，避免写出无法执行的保存指令。
+| 任务 | 实际交付与验证 | 本地提交 |
+| --- | --- | --- |
+| 0 | 完整基础实现与设计保存；原 56 项测试通过 | e06b6e9 |
+| 1 | 统一引用、版本读取、可移植路径、Project 扩展；61 项测试通过 | 2a73d76 |
+| 2 | 三类目录、实际材料版本、保存回执和 CLI 兼容 | f92657c |
+| 3 | 文件清单检查点、比较、追加恢复 | 22a7e99 |
+| 4—6 | 六种记录、进展接续、任务输出校验、方案证据依赖与探索历史；84 项测试通过 | 5177ef2 |
+| 7—9 | 五个 Skills、六种模板、八组工具示例、双宿主普通文件包、可选研究 Git；审查修复后 103 项测试通过 | 9118905 |
+| 10 | 最终增加 Git 文件名字面匹配回归，合计 104 项测试通过；旧预览清理、学生说明和真实 Codex 情境记录 | 本次收尾提交 |
+
+任务 4—6 共享记录/状态接口，合并为一次提交；入口、打包、可选 Git 与审查修复也按同批集成提交。提交粒度有所合并，实际验证未合并为宿主或教学效果的通过结论。任务 10 中仍未满足的外部验收保持未勾选。
 
 ## 九、阶段 B 的交接范围
 
