@@ -308,6 +308,42 @@ class Project:
         if execution_status != 'completed' or check_status != 'passed':
             self._invalidate(artifact_id, reason)
 
+    def finish_result(self, artifact_id, content, files, execution_status, check_status, reason):
+        """Finalize a running attempt, retaining frozen dependencies even on failure.
+
+        Unlike a research revision, finalizing failure evidence cannot require its
+        upstream source to remain usable. A changed upstream always forces failure.
+        """
+        require_text(reason, '收尾依据')
+        a = self._get(artifact_id)
+        if (a['kind'] != 'result' or a['execution_status'] not in {'running', 'stale'}
+                or a['content'].get('finished_at')):
+            raise WorkflowError('仅可收尾未结束的正式运行；重跑须用新标识')
+        if execution_status not in {'completed', 'failed'} or check_status not in {'passed', 'failed'}:
+            raise WorkflowError('运行收尾必须明确完成/失败及检查结果')
+        if execution_status == 'failed' and check_status == 'passed':
+            raise WorkflowError('失败运行不能标为核验通过')
+        content, refs = json_copy(content), json_copy(list(files))
+        if not isinstance(content, dict):
+            raise WorkflowError('运行内容必须是字典')
+        self._validate_files(refs)
+        try:
+            if a['execution_status'] == 'stale':
+                raise WorkflowError('运行期间上游修订导致本次冻结依赖过期')
+            self._check_dependencies(artifact_id)
+        except WorkflowError as exc:
+            content['dependency_error'] = str(exc)
+            content['error'] = (content.get('error') or '') + '\n运行期间上游变化：' + str(exc)
+            execution_status, check_status = 'failed', 'failed'
+        content.update(execution_status=execution_status, check_status=check_status)
+        self._state['history'][artifact_id].append(copy.deepcopy(a))
+        a.update(version=a['version'] + 1, content=content, files=refs,
+                 execution_status=execution_status, check_status=check_status,
+                 has_completed_result=bool(content.get('result')))
+        self._event('result_finalized', artifact_id, reason)
+        self._invalidate(artifact_id, '运行已收尾，请消费明确的最终版本')
+        return self.artifact(artifact_id)
+
     def approve(self, artifact_id, actor, reason, evidence):
         """Record a caller-supplied human decision; this is not authentication."""
         for value, label in [(actor, '确认者'), (reason, '确认理由'), (evidence, '确认证据位置')]:
