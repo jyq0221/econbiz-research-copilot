@@ -43,11 +43,12 @@ class DistributionTests(unittest.TestCase):
             archive.extractall(cls.package)
 
     def test_download_omits_development_material_and_keeps_runtime(self):
-        for prefix in ('tests/', 'examples/', 'scripts/', '.github/', 'docs/developer/', 'docs/superpowers/'):
+        for prefix in ('tests/', 'examples/', 'scripts/', 'docs/developer/', 'docs/superpowers/'):
             with self.subTest(prefix=prefix):
                 self.assertFalse(any(name.startswith(prefix) for name in self.names), prefix)
         self.assertNotIn('docs/research-handbook/teaching-cases.md', self.names)
         self.assertNotIn('docs/agent-entry-validation.md', self.names)
+        self.assertIn('.github/ISSUE_TEMPLATE/trial-feedback.md', self.names)
         for path in ('AGENTS.md', 'CLAUDE.md', 'README.md', 'pyproject.toml', 'econbiz/workspace.py',
                      'docs/research-handbook/tool-contracts.md', 'docs/research-handbook/project-records.md'):
             self.assertIn(path, self.names)
@@ -66,6 +67,35 @@ class DistributionTests(unittest.TestCase):
         self.assertEqual(errors, [])
 
     def test_unpacked_runtime_saves_and_resumes_without_test_data(self):
+        self.assert_runtime(self.package)
+
+    def test_clean_main_clone_matches_download_and_runs_independently(self):
+        # Publish the same archived runtime tree as main, then make a real clone.
+        published = self.root / 'published-main'
+        published.mkdir()
+        for name in self.names:
+            source = self.package / name
+            if source.is_file():
+                target = published / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source, target)
+        subprocess.run(['git', 'init', '-q', '-b', 'main', str(published)], check=True)
+        subprocess.run(['git', '-C', str(published), 'add', '.'], check=True)
+        subprocess.run([
+            'git', '-C', str(published), '-c', 'user.name=Archive Test',
+            '-c', 'user.email=archive@example.invalid', '-c', 'commit.gpgsign=false',
+            'commit', '-qm', 'Runtime distribution'
+        ], check=True)
+        clone = self.root / '默认 clone with spaces'
+        subprocess.run(['git', 'clone', '-q', str(published), str(clone)], check=True)
+        paths = subprocess.check_output(['git', '-C', str(clone), 'ls-files', '-z']).decode().split('\0')
+        expected = {name for name in self.names if (self.package / name).is_file()}
+        self.assertEqual(set(filter(None, paths)), expected)
+        for name in expected:
+            self.assertEqual((clone / name).read_bytes(), (self.package / name).read_bytes())
+        self.assert_runtime(clone)
+
+    def assert_runtime(self, directory):
         code = '''
 import json
 from pathlib import Path
@@ -82,6 +112,6 @@ summary = resume_context(Workspace.open(w.root))
 print(json.dumps({'question': summary['records']['context']['content']['question'],
                   'view': (w.root / '研究进展.md').is_file()}, ensure_ascii=False))
 '''
-        result = subprocess.run([sys.executable, '-B', '-c', code], cwd=self.package,
+        result = subprocess.run([sys.executable, '-B', '-c', code], cwd=directory,
                                 capture_output=True, text=True, check=True)
         self.assertEqual(json.loads(result.stdout), {'question': '已保存的材料能否独立接续？', 'view': True})

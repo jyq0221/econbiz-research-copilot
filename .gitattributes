@@ -1,6 +1,5 @@
-# Keep maintenance and synthetic verification material in Git, out of downloads.
+# Development branch exports the runtime tree that is published on main.
 /.gitattributes export-ignore
-/.github export-ignore
 /tests export-ignore
 /examples export-ignore
 /scripts export-ignore

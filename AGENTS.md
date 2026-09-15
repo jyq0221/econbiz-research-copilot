@@ -12,4 +12,6 @@
 
 阶段 A 提供研究准备、CSV 结构检查、记录与文件恢复。正式统计执行和独立数值复核属于阶段 B；不得把代码草稿、外部回归表或方案确认写成已执行、已复现的结果。
 
-维护 Skills 时以 `.agents/skills/` 为源，用 `python3 scripts/sync_skills.py` 同步普通文件副本，发布前运行 `--check` 和项目测试；实际宿主行为另行验收。
+默认 `main` 分支和 ZIP 为使用版本。维护、测试与实施记录位于 `codex/framework-foundation` 开发分支；维护任务先定位该分支，不在使用版本中寻找被移出的开发文件。
+
+在开发分支维护 Skills 时以 `.agents/skills/` 为源，用 `python3 scripts/sync_skills.py` 同步普通文件副本，发布前运行 `--check` 和项目测试；实际宿主行为另行验收。

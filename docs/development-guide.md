@@ -49,10 +49,20 @@ python3 -m econbiz audit /tmp/econbiz-synthetic-study examples/panel.csv --entit
 可选研究 Git 只处理所选代码/文本/元数据，单文件上限 1 MiB；已有暂存、无身份、越界、隐藏凭据或原始数据范围会拒绝。它不设置远端、不推送、不改全局身份，本地文件历史仍可继续使用。
 本地源码提交和研究文件保存是不同记录。对外发布须有明确请求；宿主兼容及初学者试用结论需实际证据。
 
-## 使用 ZIP 与完整源码
+## 默认使用版本与开发分支
 
-`.gitattributes` 的 `export-ignore` 规则让归档保留两套项目 Skills、模板、econbiz、入口、软件包配置和三份运行手册，排除 examples、tests、scripts、GitHub 维护配置、开发文档及实施记录。Git 克隆保留完整维护材料，开发和测试请使用克隆。
+`main` 为使用版本，默认 clone 和 ZIP 都保留两套项目 Skills、模板、econbiz、入口、软件包配置、三份运行手册及试用反馈模板。当前检出的文件不包含 examples、tests、scripts、开发文档或实施记录。既有 Git 历史不重写。
 
-`tests/test_distribution.py` 在临时仓库生成真实 ZIP，检查排除范围、保留入口、相对链接，以及解压后独立保存/接续。发布后另下载 GitHub 实际 ZIP 核对清单，不能仅以本地打包通过替代远端结果。
+完整维护材料保存在 `codex/framework-foundation` 分支。开发时明确选择该分支：
+
+```sh
+git clone --branch codex/framework-foundation --single-branch https://github.com/jyq0221/econbiz-research-copilot.git
+```
+
+开发分支的 `.gitattributes` 通过 `export-ignore` 导出使用文件。发布时，在临时隔离的 main checkout 中用开发分支的 `git archive` 内容替换受版本控制的文件，再正常提交、推送；不得把开发分支整体合并到 main，也不得强制推送或重写历史。检查删除项都是已保留在开发分支的维护材料，入口、两个 Skill 包、工具代码与三份手册必须完整保留。
+
+`tests/test_distribution.py` 在临时仓库生成真实 ZIP，检查排除范围、保留入口、相对链接，以及解压后独立保存/接续；还将同一使用文件树建立为 main 并实际 clone，比较文件字节且独立运行。发布后从 GitHub 默认 clone、实际下载 ZIP，逐文件核对一致性与可运行性。
+
+测试数据独立作为 `trial-data-v1` Release 附件发布，下载地址写在 README。附件包含完整合成面板、带问题的练习版、字段说明与核对答案；数据不提交到 main。发布后重新下载附件，核对散列、行数、企业年度键和预设问题。
 
 归档属性依据 [Git archive 文档](https://git-scm.com/docs/git-archive)。旧提交的 ZIP 内容不会被新规则追溯修改；请从当前默认分支重新下载。
