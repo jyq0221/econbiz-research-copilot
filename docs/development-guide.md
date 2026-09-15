@@ -32,7 +32,7 @@ git diff --check
 | research_git | 明确范围内的单项研究本地 Git，可选且无远端操作 |
 
 旧 schema_version=1 项目可读，原 reports/ 布局不自动搬迁。新项目使用 research/reports/，来源采用相对引用；历史 input_path 绝对路径保持兼容。
-阶段 B 公共接口见 [正式分析](research-handbook/analysis-execution.md)。状态 finish_result 只收尾 running 的 result，沿冻结依赖保存成功或失败证据；上游运行期间变化强制失败，日志仍登记。
+阶段 B 公共接口见 [正式分析](research-handbook/analysis-execution.md)。状态 finish_result 收尾尚未完成的 running/stale result，沿冻结依赖保存成功或失败证据；上游运行期间变化强制失败，日志仍登记。
 任务和讨论摘要的 outputs 使用版本引用，不硬连成反向依赖环。消费时实际核验文件和版本，不能仅看 completed/passed。
 
 ## 内部命令兼容
@@ -56,7 +56,7 @@ python3 -m econbiz audit /tmp/econbiz-synthetic-study examples/panel.csv --entit
 
 ## 默认使用版本与开发分支
 
-`main` 为使用版本，默认 clone 和 ZIP 都保留两套项目 Skills、模板、econbiz、入口、软件包配置、三份运行手册及试用反馈模板。当前检出的文件不包含 examples、tests、scripts、开发文档或实施记录。既有 Git 历史不重写。
+`main` 为使用版本，默认 clone 和 ZIP 都保留两套项目 Skills、模板、econbiz、入口、软件包配置、四份运行手册及试用反馈模板。main 使用文件树不包含 examples、tests、scripts、开发文档或实施记录。既有 Git 历史不重写。
 
 完整维护材料保存在 `codex/framework-foundation` 分支。开发时明确选择该分支：
 
@@ -64,7 +64,7 @@ python3 -m econbiz audit /tmp/econbiz-synthetic-study examples/panel.csv --entit
 git clone --branch codex/framework-foundation --single-branch https://github.com/jyq0221/econbiz-research-copilot.git
 ```
 
-开发分支的 `.gitattributes` 通过 `export-ignore` 导出使用文件。发布时，在临时隔离的 main checkout 中用开发分支的 `git archive` 内容替换受版本控制的文件，再正常提交、推送；不得把开发分支整体合并到 main，也不得强制推送或重写历史。检查删除项都是已保留在开发分支的维护材料，入口、两个 Skill 包、工具代码与三份手册必须完整保留。
+开发分支的 `.gitattributes` 通过 `export-ignore` 导出使用文件。发布时，在临时隔离的 main checkout 中用开发分支的 `git archive` 内容替换受版本控制的文件，再正常提交、推送；不得把开发分支整体合并到 main，也不得强制推送或重写历史。检查删除项都是已保留在开发分支的维护材料，入口、两个 Skill 包、工具代码与四份手册必须完整保留。
 
 `tests/test_distribution.py` 在临时仓库生成真实 ZIP，检查排除范围、保留入口、相对链接，以及解压后独立保存/接续；还将同一使用文件树建立为 main 并实际 clone，比较文件字节且独立运行。发布后从 GitHub 默认 clone、实际下载 ZIP，逐文件核对一致性与可运行性。
 
