@@ -1,6 +1,6 @@
 # 实施前本地检查
 
-> 历史检查记录。阶段 A 已按后续授权开始实施，现状见 [阶段 A 验证记录](agent-entry-validation.md)；以下状态保留为实施前证据。
+> 历史检查记录。现状见 [阶段 A 验证记录](agent-entry-validation.md) 和 [阶段 B 验收](stage-b-validation.md)；以下状态保留为实施前证据。
 
 检查日期：2026-09-15。用途：为本维护仓库开始实施 Agent 入口与 Skills 提供本地基线。
 

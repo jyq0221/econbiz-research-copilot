@@ -4,10 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "econbiz-research-copilot"
-version = "0.1.0a1"
-description = "Evidence-led empirical research workflow foundations"
+version = "0.2.0a1"
+description = "Evidence-led research workflow with checked Python panel analysis"
 requires-python = ">=3.9"
 dependencies = []
+
+[project.optional-dependencies]
+analysis = [
+    "numpy==2.0.2",
+    "scipy==1.13.1",
+    "pandas==2.3.3",
+    "linearmodels==6.1",
+    "openpyxl==3.1.5",
+    "statsmodels==0.14.6",
+]
 
 [project.scripts]
 econbiz = "econbiz.cli:main"

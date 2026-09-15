@@ -4,7 +4,7 @@
 
 ## 环境和验证
 
-Python 3.9+ 标准库，无第三方运行依赖；可选研究 Git 需要本机 Git。维护仓库不放真实研究数据，自动化测试在临时目录建立合成项目。
+研究准备使用 Python 3.9+ 标准库；阶段 B 正式分析需要 pyproject.toml 的固定 analysis 可选依赖，未安装时仍可使用阶段 A。statsmodels==0.14.6 是 linearmodels 的依赖，测试也用其显式虚拟变量 OLS 作为第三方参考；生产主回归调用 PanelOLS，独立参考不调用这两个估计器。可选研究 Git 需要本机 Git。维护仓库不放真实研究数据，自动化测试在临时目录建立合成项目。
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -25,9 +25,14 @@ git diff --check
 | records / progress | 六种科研记录、任务、概览与跨会话恢复 |
 | plans / research_history | 数据与证据绑定、版本确认、共同结果后探索规则 |
 | audit / candidates / reports | CSV 结构检查、固定规则教学草案和 HTML 报告 |
+| analysis_input / execution_spec | XLSX/CSV 接入、明确执行规则及逐步样本审计 |
+| estimation / numerical_check | PanelOLS 主估计与独立 SciPy 稀疏投影/数值复核 |
+| analysis_environment / execution / run_worker | 固定依赖、冻结代码/输入/环境、子进程执行与失败收尾 |
+| result_report | 只消费已核验结果的表格、判断—证据及中文解释 |
 | research_git | 明确范围内的单项研究本地 Git，可选且无远端操作 |
 
 旧 schema_version=1 项目可读，原 reports/ 布局不自动搬迁。新项目使用 research/reports/，来源采用相对引用；历史 input_path 绝对路径保持兼容。
+阶段 B 公共接口见 [正式分析](research-handbook/analysis-execution.md)。状态 finish_result 只收尾 running 的 result，沿冻结依赖保存成功或失败证据；上游运行期间变化强制失败，日志仍登记。
 任务和讨论摘要的 outputs 使用版本引用，不硬连成反向依赖环。消费时实际核验文件和版本，不能仅看 completed/passed。
 
 ## 内部命令兼容

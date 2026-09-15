@@ -1,5 +1,7 @@
 # Agent 工具契约
 
+阶段 B 的表格适配、正式执行、数值核验、报告和重跑见 [正式分析接口](analysis-execution.md)。本页保留研究准备与状态操作的共同接口。
+
 从工具项目根调用 `econbiz` 公共 Python 接口。研究路径、材料位置、字段含义、记录内容和授权均来自本轮实际任务；普通概念咨询无需建项。
 
 以下是调用片段，变量由实际材料确定，不是无需输入即可顺序执行的演示脚本。默认 clone 和 ZIP 不附合成数据；完整的合成验收流程保存在[开发分支的示例](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/developer/tool-contract-examples.md)。

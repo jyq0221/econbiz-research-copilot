@@ -12,6 +12,8 @@ def has_prior_results(project):
             return True
         if artifact['kind'] != 'result':
             continue
+        if any(v['content'].get('result_output_present') is True for v in versions):
+            return True
         if any(v.get('has_completed_result') is True or v['execution_status'] in {'completed', 'stale'} for v in versions):
             return True
     return False

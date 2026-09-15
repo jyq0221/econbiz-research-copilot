@@ -7,12 +7,13 @@ description: Use when the user asks to explain regression results, compare findi
 
 ## 先读与判断
 
-先读事前问题、实际表格、代码或运行记录、变量单位/变换、样本和诊断，核实文件及版本。用户回归表标为“外部结果，尚未复现”，以 external_result 来源登记；阶段 A 没有正式统计复现后端。
+先读事前问题、实际表格、代码或运行记录、变量单位/变换、样本和诊断，核实文件及版本。用户回归表标为“外部结果，尚未复现”，以 external_result 来源登记；新增 Python 执行能力不自动认证外部 Stata 表。
 按 [共同原则](../../../docs/research-handbook/principles.md) 区分方向与幅度、精度、设定差异和解释层级。没有区间或样本就不补造；不显著不等于没有关系，精度不足与相反证据分别解释。
 
 ## 执行与产物
 
 先用 [判断—结果表](assets/judgment-results.md) 连接事前判断、实际证据和解释范围，再写结果段落。用单位和具体比较帮助理解；不同设定同时改变样本时不能全归因于控制变量。
+本项目正式结果先 project.require_usable，再按 [正式分析](../../../docs/research-handbook/analysis-execution.md) 用 write_result_report 生成可追溯表格和解释。需要 completed/passed 的实际运行及独立核验；数值核验不认证因果假设，报告文件本身也不保证仍为当前版本。
 需来源时读 [evidence](../econbiz-evidence/SKILL.md)，需核实计算时读 [analysis](../econbiz-analysis/SKILL.md)。后续新问题交 [design](../econbiz-design/SKILL.md) 保存为结果后探索，不为显著性遍历设定。
 
 ## 检查与收尾
