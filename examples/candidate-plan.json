@@ -1,0 +1,24 @@
+{
+  "question": "合成指标 x 与 y 在企业内跨期变化中呈现什么关联？",
+  "goal": "association",
+  "judgment": "非定向探索；该教学方案不预设正负方向",
+  "competing_explanations": "共同冲击、遗漏混杂或测量差异均可能解释关联",
+  "mapping": {
+    "x": {"field": "x", "definition": "合成指标原值", "unit": "指数", "time": "会计年度", "source": "examples/panel.csv，仅为合成数据", "version": "1"},
+    "y": {"field": "y", "definition": "合成结果原值", "unit": "比例", "time": "会计年度", "source": "examples/panel.csv，仅为合成数据", "version": "1"}
+  },
+  "sample": "合成企业 A、B、C，2022—2024 年；缺失规则确认后形成分析样本",
+  "comparison": "控制企业与年度固定效应后的企业内变化",
+  "missing_rule": "保留未披露原始状态；不填零；分析阶段逐项报告完整案例删除及其影响",
+  "model": "linear_fe",
+  "controls": [],
+  "fixed_effects": ["firm", "year"],
+  "standard_errors": {"method": "cluster", "field": "firm", "rationale": "演示按企业记录误差相关假设；仅三个合成主体，不能据此声称推断可靠"},
+  "conditions": "正式估计前需检查剩余变化、共线性、样本流失和簇的信息量",
+  "feasibility": "可演示状态与关口；不构成可发表研究或可靠统计推断",
+  "data_gaps": ["真实概念与来源待由用户数据替代", "当前框架尚无估计器"],
+  "priority_reason": "在查看任何目标回归结果前，用于验证框架约束",
+  "boundary": "仅用于教学；未来关联估计也不能自动解释为因果效应",
+  "relation": "单一教学方案，不为凑数生成替代方案",
+  "purpose": "planned"
+}

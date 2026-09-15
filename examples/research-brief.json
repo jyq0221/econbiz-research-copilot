@@ -1,0 +1,25 @@
+{
+  "goal": "association",
+  "focus": {
+    "field": "y",
+    "concept": "合成经营风险指标",
+    "definition": "教学数据中的虚构风险比例，直接使用原值",
+    "unit": "比例",
+    "time": "会计年度；仅用于演示",
+    "source": "本项目 examples/panel.csv，全部为合成数据",
+    "missing_meaning": "空白和未披露保持未知，不填零",
+    "measurement_limit": "用于演示准备过程，不能代表真实企业经营风险",
+    "confirmed": true
+  },
+  "explanatory": {
+    "field": "x",
+    "concept": "合成数字化指标",
+    "definition": "教学数据中的虚构数字化指数，直接使用原值",
+    "unit": "指数",
+    "time": "会计年度；仅用于演示",
+    "source": "本项目 examples/panel.csv，全部为合成数据",
+    "missing_meaning": "未披露只表示未知，不表示数字化程度为零",
+    "measurement_limit": "没有真实测量依据，不能用于发表结论",
+    "confirmed": true
+  }
+}

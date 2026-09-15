@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "econbiz-research-copilot"
+version = "0.1.0a1"
+description = "Evidence-led empirical research workflow foundations"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+econbiz = "econbiz.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["econbiz*"]
