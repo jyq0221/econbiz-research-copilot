@@ -36,6 +36,11 @@ def json_copy(value):
 def write_json(path, content):
     """Atomic file replacement; the caller owns concurrency and directory policy."""
     encoded = json.dumps(content, ensure_ascii=False, indent=2, allow_nan=False) + '\n'
+    write_text(path, encoded)
+
+
+def write_text(path, encoded):
+    """Atomically replace a generated view or a serialized state file."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = None
@@ -182,11 +187,22 @@ class Project:
         files = json_copy(list(files))
         self._validate_files(files)
         deps = self._prepare_dependencies(artifact_id, dependencies)
+        if kind == 'plan':
+            from .research_history import prepare_plan_content
+            content = prepare_plan_content(self, content)
+            self._validate_plan_inputs(content, deps)
         self._state['artifacts'][artifact_id] = dict(
             id=artifact_id, kind=kind, version=1, content=content, dependencies=deps, files=files,
             execution_status='pending', check_status='pending', created_at=now())
         self._state['history'][artifact_id] = []
         self._event('added', artifact_id, '登记新产物')
+
+    def _validate_plan_inputs(self, content, dependencies):
+        from .plans import validate_plan
+        inventories = [self._get(key) for key in dependencies if self._get(key)['kind'] == 'inventory']
+        if len(inventories) != 1:
+            raise WorkflowError('正式方案必须绑定一个数据盘点版本')
+        validate_plan(content, inventories[0]['content']['columns'])
 
     def _check_dependencies(self, artifact_id):
         for dep, version in self._get(artifact_id)['dependencies'].items():
@@ -247,6 +263,11 @@ class Project:
         refs = json_copy(a.get('files', []) if files is None else list(files))
         self._validate_files(refs)
         deps = self._prepare_dependencies(artifact_id, a['dependencies'] if dependencies is None else dependencies)
+        if a['kind'] == 'plan':
+            from .research_history import prepare_plan_content
+            if content != a['content'] or deps != a['dependencies']:
+                content = prepare_plan_content(self, content)
+            self._validate_plan_inputs(content, deps)
         self._state['history'][artifact_id].append(copy.deepcopy(a))
         a.update(version=a['version'] + 1, content=content, dependencies=deps, files=refs,
                  execution_status='pending', check_status='pending')

@@ -8,6 +8,8 @@ from pathlib import Path
 from .audit import audit_csv
 from .files import describe_file, project_path, read_verified, resolve_reference, write_version
 from .state import Project, WorkflowError, json_copy, require_text
+from .progress import render_progress
+from .state import write_json
 
 
 LAYOUT = {
@@ -106,8 +108,36 @@ class Workspace:
         except (OSError, WorkflowError) as exc:
             raise WorkflowError(f'状态保存未完成，旧状态及已写版本文件保留：{exc}') from exc
         self.project = staged
-        self.last_receipt = {'state_saved': True, 'view_saved': False, 'view_error': '进度视图尚未接入'}
+        self.last_receipt = self._update_view()
         return self.last_receipt
+
+    def _update_view(self):
+        receipt = {'state_saved': True, 'view_saved': False}
+        try:
+            raw = render_progress(self.project).encode('utf-8')
+            view = project_path(self.root, '研究进展.md')
+            meta = project_path(self.root, self.layout['research_history'] + '/progress-view.json')
+            previous_hash = None
+            if meta.exists():
+                try:
+                    previous_hash = json.loads(meta.read_text('utf-8')).get('sha256')
+                except (ValueError, AttributeError):
+                    pass
+            if view.exists():
+                old = view.read_bytes()
+                digest = hashlib.sha256(old).hexdigest()
+                if digest != previous_hash and old != raw:
+                    relative = f'{self.layout["research_history"]}/view-edits/{digest}.md'
+                    write_version(self.root, relative, old)
+                    receipt['unreviewed_edit'] = relative
+            # View replacement is atomic, like authoritative state, but independently fallible.
+            from .state import write_text
+            write_text(view, raw.decode('utf-8'))
+            write_json(meta, {'sha256': hashlib.sha256(raw).hexdigest()})
+            receipt['view_saved'] = True
+        except (OSError, WorkflowError, ValueError) as exc:
+            receipt['view_error'] = str(exc)
+        return receipt
 
     def save(self):
         return self._publish(self.project.clone())
@@ -163,4 +193,24 @@ class Workspace:
         staged = self._stage(artifact_id, 'inventory', report, [source_id], files, 'CSV 结构盘点')
         staged.mark(artifact_id, 'completed', report['check_status'], '结构检查结果，失败证据同样保存')
         self._publish(staged, [(relative, raw)])
+        return self.project.artifact(artifact_id)
+
+    def save_record(self, artifact_id, kind, content, *, dependencies=(), reason):
+        from .records import AREAS, record_dependencies, render_record, validate_record
+        version = self._version_number(artifact_id)
+        content = validate_record(kind, content, self.project)
+        if not isinstance(dependencies, (tuple, list)) or len(set(dependencies)) != len(dependencies):
+            raise WorkflowError('依赖必须是无重复标识列表')
+        deps = list(dict.fromkeys(list(dependencies) + record_dependencies(kind, content)))
+        if artifact_id in deps:
+            raise WorkflowError('记录不能依赖自身')
+        if kind == 'research_task' and any(r['artifact_id'] == artifact_id for r in content['outputs']):
+            raise WorkflowError('任务不能以自己作为完成产物')
+        prefix = f'{self.layout[AREAS[kind]]}/{artifact_id}/v{version:04d}'
+        writes = [(prefix + '/record.json', encode_json(content)),
+                  (prefix + '/record.md', render_record(kind, content).encode('utf-8'))]
+        refs = [self._file(path, raw, kind) for path, raw in writes]
+        staged = self._stage(artifact_id, kind, content, deps, refs, reason)
+        staged.mark(artifact_id, 'completed', 'passed', '记录格式与引用检查；主张和任务状态分别保存')
+        self._publish(staged, writes)
         return self.project.artifact(artifact_id)

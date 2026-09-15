@@ -11,23 +11,12 @@ from pathlib import Path
 from .audit import MISSING
 from .plans import validate_plan
 from .state import Project, WorkflowError, json_copy, now
+from .research_history import has_prior_results
 
 
 MEANINGS = ('concept', 'definition', 'unit', 'time', 'source', 'missing_meaning', 'measurement_limit')
 UNKNOWN = {'', '待核实', '不知道', '不清楚', '未知'}
 GOALS = {'description', 'association', 'causal', 'prediction', 'undecided'}
-
-
-def has_prior_results(project):
-    """Keep exposure to results across revisions and subsequent failed checks."""
-    state = project.snapshot()
-    for key, artifact in state['artifacts'].items():
-        if artifact['kind'] != 'result':
-            continue
-        versions = [artifact] + state['history'].get(key, [])
-        if any(v.get('has_completed_result') is True or v['execution_status'] in {'completed', 'stale'} for v in versions):
-            return True
-    return False
 
 
 def _measurement(item, columns, numeric, label, questions):

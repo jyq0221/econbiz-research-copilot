@@ -52,13 +52,38 @@ def validate_plan(content, columns, require_supported=False):
         raise WorkflowError(f'方案字段缺失或类型错误：{exc}') from exc
 
 
-def register_plan(project, plan_id, content, inventory_id):
+def _plan_inputs(project, content, inventory_id, evidence_ids, context_ids):
+    from .research_history import prepare_plan_content
+    content = prepare_plan_content(project, content)
     inventory = project.require_usable(inventory_id)
     if inventory['kind'] != 'inventory':
         raise WorkflowError('方案必须引用数据盘点产物')
     validate_plan(content, inventory['content']['columns'])
-    project.add(plan_id, 'plan', content, [inventory_id])
+    deps = [inventory_id]
+    for ids, kinds in [(evidence_ids, {'literature_evidence'}),
+                       (context_ids, {'research_context', 'session_note', 'concept_plan', 'candidate_comparison', 'intake'})]:
+        if not isinstance(ids, (list, tuple)):
+            raise WorkflowError('证据和讨论依赖必须是标识列表')
+        for key in ids:
+            if project.require_usable(key)['kind'] not in kinds or key in deps:
+                raise WorkflowError('证据/讨论依赖种类错误或重复')
+            deps.append(key)
+    return content, deps
+
+
+def register_plan(project, plan_id, content, inventory_id, evidence_ids=(), context_ids=()):
+    content, deps = _plan_inputs(project, content, inventory_id, evidence_ids, context_ids)
+    project.add(plan_id, 'plan', content, deps)
     project.mark(plan_id, 'needs_decision', 'needs_decision', '方案已登记，待研究者核对设计和规则')
+    return project.artifact(plan_id)
+
+
+def revise_plan(project, plan_id, content, reason, inventory_id, evidence_ids=(), context_ids=()):
+    if project.artifact(plan_id)['kind'] != 'plan':
+        raise WorkflowError('只能修订正式方案')
+    content, deps = _plan_inputs(project, content, inventory_id, evidence_ids, context_ids)
+    project.revise(plan_id, content, reason, dependencies=deps)
+    project.mark(plan_id, 'needs_decision', 'needs_decision', '修订方案待核对具体版本')
     return project.artifact(plan_id)
 
 
