@@ -46,7 +46,9 @@
 
 在本页上方点击 **Code → Download ZIP**，或[直接下载使用包](https://github.com/jyq0221/econbiz-research-copilot/archive/refs/heads/main.zip)，下载后解压。
 
-使用包包含研究入口、模板、工具和使用手册，不包含合成测试数据、开发测试或内部实施记录。需要参与开发、复跑测试时，请用 Git 克隆完整仓库。
+也可以用 Git clone 本仓库的默认 `main` 分支。**默认 clone 和 ZIP 都是可直接使用的版本**，包含研究入口、模板、工具和使用手册，不附合成测试数据、开发测试或内部实施记录。
+
+没有自己的数据？[单独下载测试数据包](https://github.com/jyq0221/econbiz-research-copilot/releases/download/trial-data-v1/econbiz-trial-data-v1.zip)。里面有完整面板、带问题的练习版、字段说明和核对答案，按需下载即可。
 
 ### 2. 用 Codex 打开整个项目文件夹
 
@@ -74,7 +76,9 @@
 
 > 请检查我提供的企业年度 CSV，先确认哪些列对应企业和年份，再核对重复记录、缺失值和数值异常。不清楚的字段含义先问我，不自动填零或删除记录。把盘点和讨论保存在 research-projects/first-try，保留原始数据。
 
-**看看它是否真的做到了：** 指出具体记录、解释处理含义，并给出可以打开的报告和研究进展。没有数据也可以先试上面的选题任务。
+**看看它是否真的做到了：** 指出具体记录、解释处理含义，并给出可以打开的报告和研究进展。
+
+如果使用[测试数据包](https://github.com/jyq0221/econbiz-research-copilot/releases/download/trial-data-v1/econbiz-trial-data-v1.zip)，先读包内说明，把 `panel_with_issues.csv` 的位置告诉助手。它应发现重复键、缺失标记和未解释文本，并保留原始记录。完成后再打开 `核对答案.md` 对照。所有企业和数值均为合成，仅供练习。
 
 ### 📚 带一份自己的材料来
 
@@ -105,19 +109,30 @@
 
 **当前重点是把研究准备做扎实。** 已提供问题与方案讨论的方法、CSV 结构检查、科研记录、实际文件版本、检查点和接续工具。
 
-正式描述统计、固定效应回归、Excel 数据接入和独立数值复核将在后续阶段补齐。现在可以讨论你提供的回归表，但会明确注明“尚未复现”。
+### 现在能参与回归吗？
+
+**可以参与方案、代码草稿和结果讨论。** 例如核对因变量与核心解释变量的含义，讨论控制变量、固定效应和标准误设定，梳理 Stata / Python 脚本需要做什么，或结合你提供的回归表解释方向、幅度与不确定性。
+
+| 回归工作的环节 | 当前能做到什么 |
+| --- | --- |
+| 运行前 | 核对 CSV 结构、讨论样本和模型设定，整理分析计划与待检查事项。 |
+| 代码协助 | 由你使用的 AI 助手协助起草或检查代码；草稿需结合实际环境运行和核验。 |
+| 已有结果 | 保存外部回归表，结合设定和来源讨论结果，明确标注“尚未复现”。 |
+| 正式执行与验证 | 仓库尚未内置正式描述统计、固定效应回归执行和独立数值复核工具，属于后续阶段 B。 |
+
+目前的缺口在于把数据、方案、代码、运行日志和结果可靠地连起来，并验证算得是否正确。电脑上另行运行的回归，也需要提供真实输出才能讨论实际结果。Excel 数据接入同样待后续补齐。
 
 我们坚持几件小事：未知就保留未知，未披露不随意填零，原方案和结果留得住，研究修改说得清理由。检查通过不等于指标一定有效，研究进展也不以“终于显著了”为终点。
 
 <details>
 <summary>查看目前的验证范围</summary>
 
-- 107 项程序测试通过，包含下载包内容、链接及解压后保存/接续检查。
+- 108 项程序测试通过，包含交付内容、链接以及独立 clone / 解压后的保存与接续检查。
 - 10 个 Codex 合成情境及独立新会话接续完成实测，记录了超时、修复与复测过程。
 - Claude Code 的适配文件已提供，实际宿主与跨宿主交接尚未完成验证。
 - 正在邀请真实使用反馈，尚未据此验证初学者的学习效果。
 
-详细证据和未完成条件见[在线验证记录](https://github.com/jyq0221/econbiz-research-copilot/blob/main/docs/agent-entry-validation.md)。
+详细证据和未完成条件见[在线验证记录](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/agent-entry-validation.md)。
 
 </details>
 
@@ -136,6 +151,8 @@ GitHub 反馈会公开；不便公开的材料只需描述现象，无需贴出�
 ## 想了解背后的做法？
 
 - [研究原则](docs/research-handbook/principles.md)：怎样处理证据、测量和研究选择。
-- [在线验证记录](https://github.com/jyq0221/econbiz-research-copilot/blob/main/docs/agent-entry-validation.md)：哪些经过检查，哪些还要继续验证。
-- [开发说明](https://github.com/jyq0221/econbiz-research-copilot/blob/main/docs/development-guide.md)：工具接口、环境和开发方法。
-- [设计与制作标准](https://github.com/jyq0221/econbiz-research-copilot/blob/main/docs/design-and-development-standard.md)：项目目标与后续分析范围。
+- [在线验证记录](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/agent-entry-validation.md)：哪些经过检查，哪些还要继续验证。
+- [开发说明](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/development-guide.md)：工具接口、环境和开发方法。
+- [设计与制作标准](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/design-and-development-standard.md)：项目目标与后续分析范围。
+
+维护源码、开发测试和实施记录集中保存在 [开发分支](https://github.com/jyq0221/econbiz-research-copilot/tree/codex/framework-foundation)，供参与开发时查阅。
