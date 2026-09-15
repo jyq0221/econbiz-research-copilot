@@ -102,4 +102,4 @@ git diff --cached --check
 
 删除旧生成文件 `examples/student-report.html` 及已核实为合成预览的三个临时输出文件；该预览目录已清空移除。原 HTML 可从基线 e06b6e9 找回。保留 `examples/panel.csv`、方案/方向样例、报告生成器和必要研究模板，它们仍参与测试或使用流程。
 
-基线和分批实现为 e06b6e9 → 2a73d76 → f92657c → 22a7e99 → 5177ef2 → 9118905 → 1cd0894；最终补充 Git 回归、学生入口、标准 v1.2、验收记录及清理由本次收尾提交保存。工作留在本地 codex/framework-foundation 分支，未推送。
+基线和分批实现为 e06b6e9 → 2a73d76 → f92657c → 22a7e99 → 5177ef2 → 9118905 → 1cd0894；最终补充 Git 回归、学生入口、标准 v1.2、验收记录及清理由 e99d8e3 保存。阶段 A 本地验收结束时留在 codex/framework-foundation 分支，尚未推送；后续试用说明和 GitHub 发布沿用户的新授权进行，不回写上述实测提交。
