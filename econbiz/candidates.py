@@ -130,7 +130,7 @@ def build_candidates(project, inventory_id, brief):
         explanatory_ok = _measurement(explanatory, columns, numeric, '可能的解释因素', q)
     if not focus_ok:
         return result
-    raw = Path(report['input_path']).read_bytes()
+    raw = project.read_inventory_bytes(inventory_id)
     if hashlib.sha256(raw).hexdigest() != report['input_sha256']:
         raise WorkflowError('原文件已改变，请重新盘点')
     rows = list(csv.DictReader(io.StringIO(raw.decode('utf-8-sig'), newline=''), strict=True))
@@ -196,7 +196,7 @@ def store_candidates(project, inventory_id, brief, prefix):
     if not isinstance(prefix, str) or not re.fullmatch(r'[A-Za-z0-9_-]+', prefix):
         raise WorkflowError('方案包标识只能包含字母、数字、连字符和下划线')
     comparison = build_candidates(project, inventory_id, brief)
-    candidate_project = Project(project.snapshot())
+    candidate_project = project.clone()
     intake_id, comparison_id = prefix + '-intake', prefix + '-comparison'
     ids = [intake_id, comparison_id] + [f'{prefix}-plan-{i}' for i in range(1, len(comparison['plans']) + 1)]
     if set(ids) & candidate_project.snapshot()['artifacts'].keys():

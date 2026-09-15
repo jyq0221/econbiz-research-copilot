@@ -52,16 +52,26 @@ def write_json(path, content):
 
 
 class Project:
-    def __init__(self, state):
+    def __init__(self, state, *, base_dir=None):
+        self.base_dir = Path(base_dir).resolve() if base_dir is not None else None
         self._state = json_copy(state)
         self._validate()
 
     @classmethod
-    def create(cls, project_id, direction):
+    def create(cls, project_id, direction, *, base_dir=None):
         require_text(project_id, '项目标识')
         require_text(direction, '研究方向')
         return cls(dict(schema_version=1, project_id=project_id, direction=direction,
-                        artifacts={}, history={}, decisions=[], events=[]))
+                        artifacts={}, history={}, decisions=[], events=[]), base_dir=base_dir)
+
+    def clone(self):
+        return Project(self.snapshot(), base_dir=self.base_dir)
+
+    def version(self, artifact_id, version):
+        current = self._get(artifact_id)
+        if type(version) is not int or not 1 <= version <= current['version']:
+            raise WorkflowError(f'版本不存在：{artifact_id} v{version}')
+        return copy.deepcopy(current if version == current['version'] else self._state['history'][artifact_id][version - 1])
 
     def snapshot(self):
         return copy.deepcopy(self._state)
@@ -91,6 +101,10 @@ class Project:
             if not isinstance(s['events'], list) or not isinstance(s['decisions'], list):
                 raise WorkflowError('事件和决策必须是列表')
             for key, a in s['artifacts'].items():
+                for record in [a] + s['history'].get(key, []):
+                    self._validate_files(record.get('files', []))
+                    if 'input_ref' in record.get('content', {}):
+                        self._validate_files([record['content']['input_ref']])
                 require_text(a['kind'], '产物种类')
                 if a['id'] != key or type(a['version']) is not int or a['version'] < 1:
                     raise WorkflowError('产物标识或版本无效')
@@ -135,7 +149,29 @@ class Project:
         except (KeyError, TypeError, AttributeError) as exc:
             raise WorkflowError('状态文件结构损坏') from exc
 
-    def add(self, artifact_id, kind, content, dependencies=()):
+    @staticmethod
+    def _validate_files(files):
+        from .files import validate_reference
+        if not isinstance(files, list):
+            raise WorkflowError('文件引用必须是列表')
+        for ref in files:
+            validate_reference(ref)
+
+    def _prepare_dependencies(self, artifact_id, dependencies):
+        if not isinstance(dependencies, (list, tuple, dict)):
+            raise WorkflowError('依赖必须是标识列表')
+        deps = {}
+        def reaches(key):
+            return key == artifact_id or any(reaches(child) for child in self._get(key)['dependencies'])
+        for dep in dependencies:
+            require_text(dep, '依赖标识')
+            if dep in deps or reaches(dep):
+                raise WorkflowError('依赖重复、自引用或存在循环')
+            self.require_usable(dep)
+            deps[dep] = self._get(dep)['version']
+        return deps
+
+    def add(self, artifact_id, kind, content, dependencies=(), *, files=()):
         require_text(artifact_id, '产物标识')
         require_text(kind, '产物种类')
         if artifact_id in self._state['artifacts']:
@@ -143,12 +179,11 @@ class Project:
         content = json_copy(content)
         if not isinstance(content, dict):
             raise WorkflowError('产物内容必须是字典')
-        deps = {}
-        for dep in dependencies:
-            self.require_usable(dep)
-            deps[dep] = self._get(dep)['version']
+        files = json_copy(list(files))
+        self._validate_files(files)
+        deps = self._prepare_dependencies(artifact_id, dependencies)
         self._state['artifacts'][artifact_id] = dict(
-            id=artifact_id, kind=kind, version=1, content=content, dependencies=deps,
+            id=artifact_id, kind=kind, version=1, content=content, dependencies=deps, files=files,
             execution_status='pending', check_status='pending', created_at=now())
         self._state['history'][artifact_id] = []
         self._event('added', artifact_id, '登记新产物')
@@ -160,18 +195,36 @@ class Project:
             self.require_usable(dep)
 
     def require_usable(self, artifact_id):
+        from .files import verify_file
         a = self._get(artifact_id)
         if a['execution_status'] != 'completed' or a['check_status'] != 'passed':
             raise WorkflowError(f'{artifact_id} 尚未完成并通过检查，不能继续消费')
-        if a['kind'] == 'inventory' and 'input_path' in a['content']:
-            try:
-                current = hashlib.sha256(Path(a['content']['input_path']).read_bytes()).hexdigest()
-            except OSError as exc:
-                raise WorkflowError(f'{artifact_id} 的原始输入不可读取，需重新核实') from exc
-            if current != a['content'].get('input_sha256'):
-                raise WorkflowError(f'{artifact_id} 的原始输入已改变，需重新盘点并修订下游')
+        for ref in a.get('files', []):
+            verify_file(self.base_dir, ref)
+        if a['kind'] == 'inventory' and {'input_ref', 'input_path'} & a['content'].keys():
+            self.read_inventory_bytes(artifact_id)
         self._check_dependencies(artifact_id)
         return self.artifact(artifact_id)
+
+    def read_inventory_bytes(self, artifact_id):
+        from .files import read_verified
+        artifact = self._get(artifact_id)
+        if artifact['kind'] != 'inventory':
+            raise WorkflowError('所选产物不是数据盘点')
+        report = artifact['content']
+        if 'input_ref' in report:
+            raw = read_verified(self.base_dir, report['input_ref'])
+        else:
+            try:
+                path = Path(report['input_path'])
+                if not path.is_absolute():
+                    raise WorkflowError('旧盘点来源需要绝对路径')
+                raw = path.read_bytes()
+            except (OSError, KeyError, TypeError) as exc:
+                raise WorkflowError(f'{artifact_id} 的原始输入不可读取，需重新核实') from exc
+        if 'input_sha256' in report and hashlib.sha256(raw).hexdigest() != report['input_sha256']:
+            raise WorkflowError(f'{artifact_id} 的原始输入已改变，需重新盘点并修订下游')
+        return raw
 
     def _invalidate(self, artifact_id, reason):
         queue = [artifact_id]
@@ -185,18 +238,17 @@ class Project:
                     seen.add(key)
                     queue.append(key)
 
-    def revise(self, artifact_id, content, reason):
+    def revise(self, artifact_id, content, reason, *, dependencies=None, files=None):
         require_text(reason, '修订原因')
         a = self._get(artifact_id)
         content = json_copy(content)
         if not isinstance(content, dict):
             raise WorkflowError('内容必须是字典')
-        deps = {}
-        for dep in a['dependencies']:
-            self.require_usable(dep)
-            deps[dep] = self._get(dep)['version']
+        refs = json_copy(a.get('files', []) if files is None else list(files))
+        self._validate_files(refs)
+        deps = self._prepare_dependencies(artifact_id, a['dependencies'] if dependencies is None else dependencies)
         self._state['history'][artifact_id].append(copy.deepcopy(a))
-        a.update(version=a['version'] + 1, content=content, dependencies=deps,
+        a.update(version=a['version'] + 1, content=content, dependencies=deps, files=refs,
                  execution_status='pending', check_status='pending')
         self._event('revised', artifact_id, reason)
         self._invalidate(artifact_id, reason)
@@ -244,8 +296,8 @@ class Project:
     @classmethod
     def load(cls, path):
         try:
-            project = cls(json.loads(Path(path).read_text(encoding='utf-8')))
-        except (ValueError, TypeError) as exc:
+            project = cls(json.loads(Path(path).read_text(encoding='utf-8')), base_dir=Path(path).parent)
+        except (OSError, ValueError, TypeError) as exc:
             raise WorkflowError(f'不能加载研究状态：{exc}') from exc
         for key in list(project._state['artifacts']):
             if project._get(key)['execution_status'] == 'running':
