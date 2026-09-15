@@ -7,9 +7,11 @@ def has_prior_results(project):
     """Keep exposure to results across revisions and subsequent failed checks."""
     state = project.snapshot()
     for key, artifact in state['artifacts'].items():
+        versions = [artifact] + state['history'].get(key, [])
+        if artifact['kind'] == 'source' and any(v['content'].get('role') == 'external_result' for v in versions):
+            return True
         if artifact['kind'] != 'result':
             continue
-        versions = [artifact] + state['history'].get(key, [])
         if any(v.get('has_completed_result') is True or v['execution_status'] in {'completed', 'stale'} for v in versions):
             return True
     return False

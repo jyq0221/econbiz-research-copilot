@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 from .audit import audit_csv
-from .files import describe_file, project_path, read_verified, resolve_reference, write_version
+from .files import describe_file, project_path, mutable_project_path, read_verified, resolve_reference, write_version
 from .state import Project, WorkflowError, json_copy, require_text
 from .progress import render_progress
 from .state import write_json
@@ -49,6 +49,23 @@ class Workspace:
             if not isinstance(path, str):
                 raise WorkflowError('目录映射必须是相对路径')
             project_path(self.root, path)
+        paths = [project_path(self.root, path) for path in self.layout.values()]
+        for index, path in enumerate(paths):
+            if any(path == other or path in other.parents or other in path.parents for other in paths[index + 1:]):
+                raise WorkflowError('受管目录映射不能相同或互相嵌套，避免覆盖版本材料')
+
+    def _mutable_path(self, relative, project=None):
+        target = mutable_project_path(self.root, relative)
+        snapshot = (project or self.project).snapshot()
+        for key, artifact in snapshot['artifacts'].items():
+            for version in [artifact] + snapshot['history'].get(key, []):
+                refs = list(version.get('files', []))
+                if 'input_ref' in version['content']:
+                    refs.append(version['content']['input_ref'])
+                for ref in refs:
+                    if ref['scope'] == 'project' and project_path(self.root, ref['path']) == target:
+                        raise WorkflowError(f'可替换文件与版本材料重叠：{relative}')
+        return target
 
     @classmethod
     def create(cls, root, project_id, direction):
@@ -102,9 +119,10 @@ class Workspace:
 
     def _publish(self, staged, writes=()):
         try:
+            state_path = self._mutable_path('research_state.json', staged)
             for relative, raw in writes:
                 write_version(self.root, relative, raw)
-            staged.save(project_path(self.root, 'research_state.json'))
+            staged.save(state_path)
         except (OSError, WorkflowError) as exc:
             raise WorkflowError(f'状态保存未完成，旧状态及已写版本文件保留：{exc}') from exc
         self.project = staged
@@ -115,8 +133,8 @@ class Workspace:
         receipt = {'state_saved': True, 'view_saved': False}
         try:
             raw = render_progress(self.project).encode('utf-8')
-            view = project_path(self.root, '研究进展.md')
-            meta = project_path(self.root, self.layout['research_history'] + '/progress-view.json')
+            view = self._mutable_path('研究进展.md')
+            meta = self._mutable_path(self.layout['research_history'] + '/progress-view.json')
             previous_hash = None
             if meta.exists():
                 try:

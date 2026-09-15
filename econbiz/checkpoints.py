@@ -114,6 +114,8 @@ def restore_record(workspace, artifact_id, version, reason):
                               old.get('files', []), reason)
     if old['kind'] == 'plan':
         staged.mark(artifact_id, 'needs_decision', 'needs_decision', '恢复形成新方案版本，需重新确认')
+    elif old['kind'] == 'result':
+        staged.mark(artifact_id, 'pending', 'pending', '旧结果内容可读，仍需重新执行与独立数值核对')
     elif old['execution_status'] == 'completed' and old['check_status'] == 'passed':
         staged.mark(artifact_id, 'completed', 'passed', '旧内容及依赖可读；不提高证据等级')
     workspace._publish(staged)

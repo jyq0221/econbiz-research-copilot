@@ -211,6 +211,17 @@ class Project:
             self.require_usable(dep)
 
     def require_usable(self, artifact_id):
+        if not hasattr(self, '_checking'):
+            self._checking = set()
+        if artifact_id in self._checking:
+            raise WorkflowError(f'产物消费引用存在循环：{artifact_id}')
+        self._checking.add(artifact_id)
+        try:
+            return self._require_usable(artifact_id)
+        finally:
+            self._checking.remove(artifact_id)
+
+    def _require_usable(self, artifact_id):
         from .files import verify_file
         a = self._get(artifact_id)
         if a['execution_status'] != 'completed' or a['check_status'] != 'passed':
@@ -220,6 +231,13 @@ class Project:
         if a['kind'] == 'inventory' and {'input_ref', 'input_path'} & a['content'].keys():
             self.read_inventory_bytes(artifact_id)
         self._check_dependencies(artifact_id)
+        if a['kind'] in {'research_task', 'session_note'}:
+            from .records import reference
+            for output in a['content'].get('outputs', []):
+                reference(self, output)
+        if a['kind'] == 'user_decision':
+            from .records import reference
+            reference(self, {'artifact_id': a['content']['plan_id'], 'version': a['content']['plan_version']}, usable=False)
         return self.artifact(artifact_id)
 
     def read_inventory_bytes(self, artifact_id):
@@ -305,6 +323,24 @@ class Project:
         validate_plan(a['content'], inventory[0]['content']['columns'], require_supported=True)
         if a['check_status'] in {'failed', 'stale'}:
             raise WorkflowError('检查失败的方案不能确认')
+        evidence_path = Path(evidence)
+        if '..' in evidence_path.parts:
+            raise WorkflowError('确认证据路径不能包含上级跳转')
+        if evidence_path.is_absolute() and self.base_dir is not None:
+            try:
+                evidence_path = evidence_path.relative_to(self.base_dir)
+            except ValueError:
+                pass
+        for key, record in self._state['artifacts'].items():
+            if record['kind'] != 'user_decision':
+                continue
+            for version in [record] + self._state['history'][key]:
+                if any(ref['path'] == evidence_path.as_posix() for ref in version.get('files', [])):
+                    if version['version'] != record['version']:
+                        raise WorkflowError('确认摘录已修订，不能使用旧版摘录')
+                    self.require_usable(key)
+                    if version['content']['plan_id'] != artifact_id or version['content']['plan_version'] != a['version']:
+                        raise WorkflowError('确认摘录与当前方案版本不符')
         self._state['decisions'].append(dict(artifact_id=artifact_id, version=a['version'],
                                              actor=actor, reason=reason, evidence=evidence, at=now()))
         a.update(execution_status='completed', check_status='passed')

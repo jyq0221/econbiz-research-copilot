@@ -48,6 +48,17 @@ def resolve_reference(root, ref):
     return project_path(root, ref['path']) if ref['scope'] == 'project' else Path(ref['path'])
 
 
+def mutable_project_path(root, relative):
+    """Generated views/state may replace their own file, never a symlink alias."""
+    target = project_path(root, relative)
+    cursor = Path(root).resolve()
+    for part in Path(relative).parts:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            raise WorkflowError(f'可替换文件路径不能包含符号链接：{relative}')
+    return target
+
+
 def describe_file(root, path, *, scope, role):
     require_text(role, '材料用途')
     original = Path(path)

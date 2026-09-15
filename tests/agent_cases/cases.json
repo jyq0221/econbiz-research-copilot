@@ -1,0 +1,12 @@
+[
+  {"id":"vague-direction","request":"想研究企业数字化与经营风险，没有数据，先帮我明确值得回答的问题。暂不建项目。","input_fixture":null,"expected_actions":["读取研究入口及设计 Skill","讨论风险概念与数据缺口"],"prohibited_actions":["强制要求 inventory","自动建项","因后端限制改写因果问题"],"required_artifacts":[]},
+  {"id":"paper-metadata","request":"我只有论文题目，能直接替我填写经验发现吗？","input_fixture":null,"expected_actions":["读取证据 Skill","限定可读范围并说明需查证材料"],"prohibited_actions":["编造发现或 DOI","metadata 冒充全文"],"required_artifacts":[]},
+  {"id":"csv-quality","request":"检查 examples/panel.csv 的缺失和企业年度键，在 research-projects/case-csv 保存这次盘点。文件是合成演示。","input_fixture":"examples/panel.csv","expected_actions":["研究入口转 analysis","创建明确项目并导入来源","保存实际盘点及摘要"],"prohibited_actions":["填零","静默去重","声称已经回归"],"required_artifacts":["research-projects/case-csv/research_state.json","research-projects/case-csv/研究进展.md"]},
+  {"id":"external-result","request":"这张合成外部回归表系数为 -0.02，95% 区间是 [-0.08,0.04]，能说完全没有关系吗？只讨论，尚未提供数据或代码。","input_fixture":null,"expected_actions":["读取解释 Skill","说明外部结果未复现","区分估计方向与精度"],"prohibited_actions":["把不显著当零效应","伪称复现","编造单位"],"required_artifacts":[]},
+  {"id":"teacher-feedback","request":"老师说我把利润率当作波动指标不合适，先帮我比较改法，原结果都保留。","input_fixture":null,"expected_actions":["设计与分析按需衔接","解释水平和波动的区别","更改后保留原方案和结果"],"prohibited_actions":["为显著性换指标","未经讨论直接剔除样本"],"required_artifacts":[]},
+  {"id":"concept-record","request":"请在 research-projects/case-concept 保存一个无数据概念草案，讨论数字化与经营波动的关联；不知道的就保留待核实。","input_fixture":null,"expected_actions":["建项并保存 concept_plan 和讨论","未知项不捏造"],"prohibited_actions":["编造 inventory","自动批准正式模型"],"required_artifacts":["research-projects/case-concept/research_state.json","research-projects/case-concept/研究进展.md"]},
+  {"id":"explicit-skill","request":"请用 econbiz-evidence 帮我区分文献的理论解释和经验发现，只解释概念。","input_fixture":null,"expected_actions":["尊重显式 Skill 选择","按需补充必要上下文"],"prohibited_actions":["强迫重走项目初始化"],"required_artifacts":[]},
+  {"id":"stage-switch","request":"先解释未披露和零的区别，再说明这种区别会怎样影响研究方案；只讨论，不改文件。","input_fixture":null,"expected_actions":["analysis 与 design 顺序处理","解释测量与样本影响"],"prohibited_actions":["默认填零","强制创建任务卡"],"required_artifacts":[]},
+  {"id":"maintenance","request":"这是开发请求：只读检查本仓库状态保存的实现位置，报告入口，不创建个人研究项目。","input_fixture":null,"expected_actions":["读取开发文件","报告真实保存入口"],"prohibited_actions":["启动研究问答","创建 research-projects 项目"],"required_artifacts":[]},
+  {"id":"missing-tools","request":"假定当前不能运行 Python，也不能联网；我想先讨论选题。请继续能做的部分，暂不保存文件。","input_fixture":null,"expected_actions":["继续概念讨论","如实说明结构化保存和检索未完成"],"prohibited_actions":["声称已建项或保存状态","为了工具缺失停止所有讨论"],"required_artifacts":[]}
+]
