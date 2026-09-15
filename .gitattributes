@@ -1,0 +1,10 @@
+# Keep maintenance and synthetic verification material in Git, out of downloads.
+/.gitattributes export-ignore
+/.github export-ignore
+/tests export-ignore
+/examples export-ignore
+/scripts export-ignore
+/docs/*.md export-ignore
+/docs/developer export-ignore
+/docs/superpowers export-ignore
+/docs/research-handbook/teaching-cases.md export-ignore

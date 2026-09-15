@@ -15,7 +15,7 @@ class SkillPackageTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name) / '中文 复制目录'
         self.root.mkdir()
-        for name in ('.agents', '.claude', 'docs'):
+        for name in ('.agents', '.claude', 'docs', 'econbiz'):
             shutil.copytree(ROOT / name, self.root / name)
         for name in ('AGENTS.md', 'CLAUDE.md'):
             shutil.copyfile(ROOT / name, self.root / name)

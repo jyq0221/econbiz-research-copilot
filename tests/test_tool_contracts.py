@@ -5,7 +5,7 @@ from pathlib import Path
 
 class ToolContractTests(unittest.TestCase):
     def test_documented_examples_execute_and_restore_real_bytes(self):
-        path = Path(__file__).resolve().parents[1] / 'docs/research-handbook/tool-contracts.md'
+        path = Path(__file__).resolve().parents[1] / 'docs/developer/tool-contract-examples.md'
         content = path.read_text('utf-8')
         namespace = {}
         try:

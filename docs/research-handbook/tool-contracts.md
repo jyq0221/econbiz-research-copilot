@@ -1,133 +1,116 @@
 # Agent 工具契约
 
-以下八组示例已在临时合成项目按顺序执行。请从工具仓库根运行；真实研究用实际项目位置和用户材料替换，不能复制示例授权或虚构文献内容。
+从工具项目根调用 `econbiz` 公共 Python 接口。研究路径、材料位置、字段含义、记录内容和授权均来自本轮实际任务；普通概念咨询无需建项。
 
-普通概念咨询直接讨论，无需创建 Workspace。开始实际研究后再用这些保存接口；程序只核验字节、结构和引用，不认证经验主张。
+以下是调用片段，变量由实际材料确定，不是无需输入即可顺序执行的演示脚本。使用 ZIP 不附合成数据；完整的合成验收流程保存在[源码仓库的开发示例](https://github.com/jyq0221/econbiz-research-copilot/blob/main/docs/developer/tool-contract-examples.md)。
 
-## 1. 建立临时合成研究
+## 1. 定位、建立或继续研究
+
+`project_root` 是明确的研究目录；`project_id`、`direction` 来自当前任务。新研究使用 `Workspace.create`，已有研究使用 `Workspace.open`，两者按实际状态选择。存在但损坏的状态不是新项目。
 
 ```python
-import json
-import tempfile
 from pathlib import Path
 from econbiz.workspace import Workspace
-from econbiz.files import read_verified
-from econbiz.state import now
-from econbiz.plans import register_plan, require_approved_plan
-from econbiz.checkpoints import create_checkpoint, compare_checkpoints, restore_record
 from econbiz.progress import resume_context
 
-temporary = tempfile.TemporaryDirectory()
-workspace = Workspace.create(Path(temporary.name) / "study", "synthetic", "合成数据演示")
-assert all((workspace.root / area).is_dir() for area in ("literature", "data", "research"))
+# 仅在明确建立新研究时调用：
+workspace = Workspace.create(Path(project_root), project_id, direction)
 ```
 
-## 2. 导入实际文件
+已有研究先打开并核对有效材料、待办及授权，不依赖前轮聊天：
 
 ```python
-source = workspace.import_file("panel", Path("examples/panel.csv"), role="raw_data", reason="导入合成演示数据")
-paper_path = Path(temporary.name) / "paper.txt"
-paper_path.write_text("合成材料：年度利润率表示水平，波动需要跨期定义。", encoding="utf-8")
-paper = workspace.import_file("paper", paper_path, role="literature_source", reason="导入合成片段")
-assert read_verified(workspace.root, source["files"][0]) == Path("examples/panel.csv").read_bytes()
+workspace = Workspace.open(Path(project_root))
+summary = resume_context(workspace)
 ```
 
-## 3. 盘点与核查
+## 2. 导入实际来源
+
+`source_id` 标识这份材料，`input_path` 必须是已定位的实际文件。默认复制真实字节并保留版本；同标识更新需说明理由。`role` 可用 raw_data、literature_source、data_metadata、external_result、research_material。
 
 ```python
-inventory = workspace.audit("inventory", "panel", entity="firm", time="year", numeric=["x", "y"])
-assert inventory["content"]["rows"] == 9
-assert inventory["check_status"] == "passed"
-assert workspace.project.read_inventory_bytes("inventory") == Path("examples/panel.csv").read_bytes()
+source = workspace.import_file(source_id, Path(input_path), role=role, reason=reason)
+receipt = workspace.last_receipt
 ```
 
-## 4. 保存证据、讨论和任务
+`copy=False` 只用于明确选择的绝对路径外部索引，其恢复仍依赖原文件。重新定位用 `relocate_source` 校验相同内容。外部回归表以 external_result 登记并注明未复现。
+
+## 3. CSV 结构检查
+
+读取实际文件后确定企业列 `entity_column`、时间列 `time_column` 和经确认的数值列 `numeric_columns`。字段名不证明经济含义，不默认填零或去重。
 
 ```python
-evidence = workspace.save_record("evidence", "literature_evidence", {
-    "source_id": "paper", "read_scope": "excerpt", "locator": "合成片段第一句",
-    "claim": "年度利润率水平不能直接表示波动", "support": "年度利润率表示水平，波动需要跨期定义。",
-    "limits": "合成材料，只演示来源记录，不是实际文献结论"
-}, reason="保存已读片段")
-context = {"question": "合成指标如何比较", "known": ["企业年度数据"],
-           "unknown": ["真实测量依据"], "constraints": ["仅演示"], "next_step": "审阅方案"}
-workspace.save_record("context", "research_context", context, reason="记录当前问题")
-workspace.save_record("session", "session_note", {
-    "summary": "核实合成材料含义",
-    "facts": [{"id": "fact-1", "claim": "水平与波动需区分", "source_kind": "source_excerpt",
-               "locator": "paper 第一行", "excerpt": "年度利润率表示水平",
-               "evidence_status": "source_supported", "source_ref": {"artifact_id": "paper", "version": 1}}],
-    "decisions": [], "outputs": [{"artifact_id": "evidence", "version": 1}],
-    "open_questions": ["真实数据的指标定义"], "next_step": "比较方案",
-    "authorization": "当前仅为临时合成测试，不代表真实研究授权"
-}, reason="保存可核对摘要")
-workspace.save_record("task", "research_task", {
-    "title": "核实合成片段", "task_status": "completed", "input_versions": {"paper": 1},
-    "outputs": [{"artifact_id": "evidence", "version": 1}], "next_step": "方案讨论", "blocked_reason": ""
-}, reason="实际证据卡已保存")
+inventory = workspace.audit(inventory_id, source_id, entity=entity_column,
+                            time=time_column, numeric=numeric_columns)
+report = inventory["content"]
+receipt = workspace.last_receipt
 ```
 
-## 5. 正式方案登记
+错误报告同样保存。检查 `check_status`、`issues`、`partial` 和实际样本信息；失败或过期盘点不能登记正式方案。读入材料时可用 `read_verified(workspace.root, reference)` 核对真实字节，不仅检查文件是否存在。
+
+## 4. 记录事实、讨论与任务
+
+六种记录及来源规则见 [记录说明](project-records.md)，完整字段契约可读取 [records.py](../../econbiz/records.py)。`content` 必须根据实际材料组织；未知保持未知，文献 metadata 不填写经验发现。
 
 ```python
-content = json.loads(Path("examples/candidate-plan.json").read_text("utf-8"))
-plan = register_plan(workspace.project, "plan", content, "inventory",
-                     evidence_ids=["evidence"], context_ids=["context"])
-workspace.save()
-assert plan["execution_status"] == "needs_decision"
-assert workspace.project.snapshot()["decisions"] == []
+record = workspace.save_record(record_id, kind, content, reason=reason)
+receipt = workspace.last_receipt
 ```
 
-## 6. 绑定具体版本的确认摘录
+同一事实更正沿相同 `record_id` 修订，保留出处及修改原因；新版本会使受影响记录过期。任务和会话摘要的 `outputs` 使用实际 `{artifact_id, version}` 引用。任务 completed 需当前可用产物；等待任务注明 blocked_reason，业务状态与保存状态分别表达。
+
+## 5. 登记或修订方案
+
+无数据草案用 concept_plan 保存；正式方案使用实际 inventory 及文献、讨论依赖。内容字段和支持范围见 [plans.py](../../econbiz/plans.py)，不能为符合后端能力改写研究目标。
 
 ```python
-decision = workspace.save_record("decision", "user_decision", {
-    "plan_id": "plan", "plan_version": 1, "quote": "【合成测试授权】按这份方案做",
-    "scope": "只测试临时合成项目 plan v1", "recorded_at": now()
-}, reason="验证具体版本确认，不用于真实研究")
-workspace.project.approve("plan", "合成测试用户（未作身份认证）", "验证授权绑定",
-                          decision["files"][0]["path"])
-workspace.save()
-assert require_approved_plan(workspace.project, "plan")["version"] == 1
-# 确认是状态测试，没有执行统计估计。真实任务只能保存当前用户实际可见的确认。
+from econbiz.plans import register_plan, revise_plan
+
+plan = register_plan(workspace.project, plan_id, plan_content, inventory_id,
+                     evidence_ids=evidence_ids, context_ids=context_ids)
+receipt = workspace.save()
 ```
 
-## 7. 检查点、比较和旧版恢复
+修订使用 `revise_plan(..., reason=实际修改理由)`，重新绑定适用的数据和证据版本。已有结果后新增或修改设定必须记录 exploration_reason，并标为 exploratory；保留原方案及结果。登记方案不等于批准或执行。
+
+## 6. 保存真实确认并绑定版本
+
+只有用户当前可见授权适用于具体方案版本时才使用确认接口；已有明确授权不重复审批。`decision_content` 必须包含 plan_id、plan_version、quote、scope、recorded_at，摘录使用真实原话及实际记录时间，不编造身份或平台消息标识。
 
 ```python
-left = create_checkpoint(workspace, "初稿", "保存当前材料与状态")
-workspace.save_record("context", "research_context", dict(context, question="修订后的合成问题"),
-                      reason="演示更正")
-right = create_checkpoint(workspace, "更正稿", "保存更正后的状态")
-difference = compare_checkpoints(workspace, left["id"], right["id"])
-assert "context" in difference["changed"]
-restored = restore_record(workspace, "context", 1, "比较后恢复初稿内容")
-assert restored["version"] == 3
-assert workspace.project.version("context", 2)["content"]["question"] == "修订后的合成问题"
-assert read_verified(workspace.root, restored["files"][0])
+decision = workspace.save_record(decision_id, "user_decision", decision_content,
+                                 reason=decision_reason)
+workspace.project.approve(plan_id, actor, approval_reason, decision["files"][0]["path"])
+receipt = workspace.save()
 ```
 
-## 8. 保存与新会话接续
+先核对决定记录已保存，再使用返回路径确认。摘录本身不自动批准；确认不表示统计分析已执行或复现。旧式自由文本 evidence 只是兼容调用者声明。
+
+## 7. 检查点、比较与恢复
+
+```python
+from econbiz.checkpoints import create_checkpoint, compare_checkpoints, restore_record
+
+checkpoint = create_checkpoint(workspace, label, reason)
+difference = compare_checkpoints(workspace, left_checkpoint_id, right_checkpoint_id)
+restored = restore_record(workspace, artifact_id, old_version, restore_reason)
+```
+
+检查点记录状态、版本和实际文件核验范围，不重复复制所有原始数据。`complete=false` 不表示完整备份。恢复前核对旧字节及依赖；恢复形成新修订，不抹去后续历史。旧方案恢复需重新确认，旧结果恢复仍待数值核验。
+
+## 8. 保存回执与收尾
 
 ```python
 receipt = workspace.save()
-assert receipt["state_saved"] and receipt["view_saved"]
 reopened = Workspace.open(workspace.root)
 summary = resume_context(reopened)
-assert summary["project_id"] == "synthetic"
-assert summary["records"]["context"]["version"] == 3
-# 不依赖宿主聊天记录；手动删除概览也可从状态重建。
-temporary.cleanup()
 ```
 
-## 失败与范围
+核对 `state_saved`、`view_saved` 与可能的 `view_error`，再向用户说明实际保存结果。重要更正及时保存，结束实质工作时保留 session_note、真实输出和下一步。
 
-- import_file 默认复制实际材料；copy=False 只接受明确绝对路径，恢复依赖外部文件。用途为 raw_data/literature_source/data_metadata/external_result/research_material。
-- audit 即使结构失败也保存报告，检查 check_status 和 issues；失败盘点不能登记正式方案。
-- save_record 支持六种记录，字段见 [记录规则](project-records.md) 与 econbiz/records.py。修订沿原标识，理由必填。方案修订使用 revise_plan，并重新绑定文献/讨论输入。
-- Project 的 add/revise/clone/version/read_inventory_bytes 可直接使用；需要保存持久文件时优先通过 Workspace。不要访问或修改 _state。
-- 保存接口抛 WorkflowError 或 OSError 时保留旧状态和孤立文件，先检查错误位置；不另建同名项目。save 返回 state_saved/view_saved，import/audit/save_record 的后续视图回执在 workspace.last_receipt。
-- 确认摘录只记录可见用户意见；approve 绑定具体版本并校验已登记摘录。旧式自由文本 evidence 仅为兼容调用者陈述，不是身份认证或自动读取聊天记录。
-- require_usable 会检查真实文件、依赖和任务/摘要输出版本；不能仅看 completed 字段。结果恢复后仍待核验；外部结果登记也保留结果暴露，后续新分析需说明探索原因。
-- 比较检查点会重新检查实际文件；complete=false 的检查点不是完整本地备份。恢复旧依赖不匹配时停止，旧版方案恢复需重新确认。
-- 用户研究 Git 为可选：enable_git(workspace, tracked_paths) 登记范围；preview_changes(workspace, paths) 只读列出文件；commit_changes(workspace, paths, message) 仅在既有授权范围内本地提交。当前工具限每个不超过 1 MiB 的 UTF-8 代码、文字和元数据，原始数据/全文/运行包不纳入。已有暂存或缺身份会拒绝，不改全局身份，不设置远端。
+## 失败处理和可选 Git
+
+- Workspace 先写不可覆盖的版本文件，再原子保存状态，最后更新概览。状态保存失败时旧状态有效，孤立文件等待核实；概览失败不回滚状态。捕获 WorkflowError / OSError 后检查实际位置，不另建同名项目或伪称成功。
+- `require_usable` 会核验真实文件、依赖及输出版本；不能仅凭 completed/passed 消费记录。人工概览更正另存为待核实输入，不直接成为事实或批准。
+- Project 的 add/revise/clone/version/read_inventory_bytes 可按公共契约调用；持久文件操作优先用 Workspace，不修改私有 `_state`。同一研究保持一个写入者。
+- 可选研究 Git 使用 `enable_git(workspace, tracked_paths)` 登记范围，先 `preview_changes`，再按已有授权 `commit_changes`。范围、身份、文件限制及无远端操作规则见 [记录说明](project-records.md)。
