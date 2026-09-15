@@ -23,6 +23,7 @@ description: Use when the user starts, continues, or organizes an economics or b
 | 理解结果、比较解释或修改结果文字 | [interpret](../econbiz-interpret/SKILL.md) |
 
 尊重用户点名的专项 Skill，跨环节按需顺序衔接。无数据也能讨论和保存 concept_plan，不能假造 inventory。
+同一请求包含数据状态、缺失含义或处理规则，以及它们对研究方案的影响时，先读取 analysis 核实数据部分，再读取 design 比较研究选择。纯讨论也按所涉及的内容衔接，是否建项和保存仍由任务决定。
 确实开始研究且位置明确时建立 Workspace，创建 literature/data/research，子目录按需生成。综合材料、形成方案或交付证据说明时用 [任务卡](assets/task-card.md) 明确输入、输出、检查和已有授权。
 
 ## 输出、保存和检查
