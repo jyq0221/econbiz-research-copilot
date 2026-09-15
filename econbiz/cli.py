@@ -12,6 +12,7 @@ from .guidance import collect_brief
 from .plans import register_plan
 from .reports import render_comparison
 from .state import Project, WorkflowError, write_json
+from .workspace import Workspace
 
 
 def main(argv=None):
@@ -47,12 +48,11 @@ def main(argv=None):
     state_path = args.project / 'research_state.json'
     try:
         if args.command == 'init':
-            project = Project.create(args.project.resolve().name, args.direction)
-            args.project.mkdir(parents=True, exist_ok=False)
-            project.save(state_path)
+            Workspace.create(args.project, args.project.resolve().name, args.direction)
             print(f'项目已建立：{state_path.resolve()}\n下一步：盘点 CSV 字段及数据质量。')
             return 0
-        project = Project.load(state_path)
+        workspace = Workspace.open(args.project)
+        project = workspace.project
         if args.command == 'guide':
             inventory = project.require_usable(args.inventory)
             if inventory['kind'] != 'inventory' or 'key' not in inventory['content']:
@@ -66,11 +66,12 @@ def main(argv=None):
                     brief['exploration_reason'] = input('项目已有结果。现在提出这组问题的原因是什么？（会标记为结果后探索）：').strip()
             prefix = 'guidance-' + uuid4().hex[:12]
             updated, comparison = store_candidates(project, args.inventory, brief, prefix)
-            report_path = args.project / 'reports' / f'{prefix}.html'
+            report_path = workspace.path('research_reports') / f'{prefix}.html'
             rendered = render_comparison(comparison)
             report_path.parent.mkdir(parents=True, exist_ok=True)
             report_path.write_text(rendered, encoding='utf-8')
-            updated.save(state_path)
+            workspace.project = updated
+            workspace.save()
             print(f'已准备 {len(comparison["plans"])} 条讨论路线，尚未代你确认任何方案。')
             print(f'用浏览器打开报告：{report_path.resolve()}')
             print('下一步：' + comparison['recommendation'])
@@ -80,23 +81,21 @@ def main(argv=None):
         if args.command == 'plan':
             content = json.loads(args.json.read_text(encoding='utf-8'))
             register_plan(project, args.id, content, args.inventory)
-            project.save(state_path)
+            workspace.save()
             print(f'候选方案 {args.id} 已登记，待核对研究目标、字段含义、样本及方法条件。')
             return 0
         if args.command == 'approve':
             project.approve(args.id, args.actor, args.reason, args.evidence)
-            project.save(state_path)
+            workspace.save()
             print(f'{args.id} 当前版本的确认已记录；这不代表模型已估计或识别假设已验证。')
             return 0
         if args.command == 'audit':
-            report = audit_csv(args.csv, args.entity, args.time, args.numeric)
             artifact_id = 'inventory-' + uuid4().hex[:12]
-            report_path = args.project / 'reports' / f'{artifact_id}.json'
-            report['report_path'] = str(report_path.resolve())
-            project.add(artifact_id, 'inventory', report)
-            project.mark(artifact_id, 'completed', report['check_status'], 'CSV 确定性结构检查')
-            write_json(report_path, report)
-            project.save(state_path)
+            source_id = 'source-' + uuid4().hex[:12]
+            workspace.import_file(source_id, args.csv, role='raw_data', reason='用户请求盘点该 CSV')
+            artifact = workspace.audit(artifact_id, source_id, entity=args.entity, time=args.time, numeric=args.numeric)
+            report = artifact['content']
+            report_path = workspace.root / artifact['files'][0]['path']
             print(f'{artifact_id}：{report["rows"]} 行，{report["entities"]} 个主体，检查 {report["check_status"]}')
             print(f'报告：{report_path.resolve()}')
             print('下一步：处理报告中的错误，并核实字段含义、单位、时间和缺失规则。')

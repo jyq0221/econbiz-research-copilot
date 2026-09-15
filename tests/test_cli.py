@@ -24,7 +24,7 @@ class CliTests(unittest.TestCase):
             status = self.run_cli('status', project)
             self.assertEqual(status.returncode, 0)
             self.assertIn('inventory', status.stdout)
-            self.assertEqual(len(list((project / 'reports').glob('*.json'))), 1)
+            self.assertEqual(len(list((project / 'research/reports').glob('*/v0001/*.json'))), 1)
 
     def test_failed_audit_persisted_with_nonzero_exit(self):
         with tempfile.TemporaryDirectory() as d:
@@ -35,7 +35,7 @@ class CliTests(unittest.TestCase):
             r = self.run_cli('audit', project, data, '--entity', 'firm', '--time', 'year', '--numeric', 'x')
             self.assertEqual(r.returncode, 2, r.stderr)
             state = json.loads((project / 'research_state.json').read_text())
-            self.assertEqual(next(iter(state['artifacts'].values()))['check_status'], 'failed')
+            self.assertEqual(next(a for a in state['artifacts'].values() if a['kind'] == 'inventory')['check_status'], 'failed')
 
     def test_candidate_and_explicit_approval_commands(self):
         from test_plans import candidate
@@ -46,7 +46,7 @@ class CliTests(unittest.TestCase):
             data.write_text('firm,year,x,y\na,2023,1,2\na,2024,2,3\n')
             self.run_cli('audit', project, data, '--entity', 'firm', '--time', 'year', '--numeric', 'x', 'y')
             state = json.loads((project / 'research_state.json').read_text())
-            inventory = next(iter(state['artifacts']))
+            inventory = next(k for k, a in state['artifacts'].items() if a['kind'] == 'inventory')
             plan = Path(d) / 'plan.json'
             plan.write_text(json.dumps(candidate()))
             r = self.run_cli('plan', project, plan, '--id', 'p1', '--inventory', inventory)
@@ -64,7 +64,7 @@ class CliTests(unittest.TestCase):
             data.write_text('firm,year,x\na,2023,"unterminated\n')
             r = self.run_cli('audit', project, data, '--entity', 'firm', '--time', 'year', '--numeric', 'x')
             self.assertEqual(r.returncode, 2)
-            reports = list((project / 'reports').glob('*.json'))
+            reports = list((project / 'research/reports').glob('*/v0001/*.json'))
             self.assertEqual(len(reports), 1)
             self.assertEqual(json.loads(reports[0].read_text())['check_status'], 'failed')
 
@@ -77,12 +77,12 @@ class CliTests(unittest.TestCase):
             data.write_text('firm,year,x,y\na,2023,1,2\na,2024,2,3\nb,2023,2,3\nb,2024,3,4\n')
             self.run_cli('audit', project, data, '--entity', 'firm', '--time', 'year', '--numeric', 'x', 'y')
             state = json.loads((project / 'research_state.json').read_text())
-            inventory = next(iter(state['artifacts']))
+            inventory = next(k for k, a in state['artifacts'].items() if a['kind'] == 'inventory')
             intake = Path(d) / 'brief.json'
             intake.write_text(json.dumps(brief()))
             result = self.run_cli('guide', project, '--inventory', inventory, '--brief', intake)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(len(list((project / 'reports').glob('*.html'))), 1)
+            self.assertEqual(len(list((project / 'research/reports').glob('*.html'))), 1)
             state = json.loads((project / 'research_state.json').read_text())
             self.assertEqual(state['decisions'], [])
             self.assertEqual(sum(a['kind'] == 'plan' for a in state['artifacts'].values()), 2)
@@ -96,7 +96,7 @@ class CliTests(unittest.TestCase):
             self.run_cli('audit', project, data, '--entity', 'firm', '--time', 'year', '--numeric', 'x')
             state_path = project / 'research_state.json'
             before = state_path.read_bytes()
-            inventory = next(iter(json.loads(before)['artifacts']))
+            inventory = next(k for k, a in json.loads(before)['artifacts'].items() if a['kind'] == 'inventory')
             r = subprocess.run([sys.executable, '-m', 'econbiz', 'guide', str(project), '--inventory', inventory],
                                input='', capture_output=True, text=True)
             self.assertNotEqual(r.returncode, 0)
