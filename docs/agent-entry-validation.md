@@ -125,3 +125,11 @@ git diff --cached --check
 独立数据包 `econbiz-trial-data-v1.zip` 含 6 个文件：完整 CSV、问题 CSV、README、字段说明、核对答案和 SHA256SUMS。完整版本 30 家虚构企业、2018—2025 年、240 行；问题版 243 行。用另一语言独立重算 240 行生成公式，并与最终 CSV 逐值比对；核对 2 组重复键、2 条缺失键、1 条非法数值以及 5 个原始缺失标记，均与包内答案相同。原样保留有效零；分别渲染检查两个数据表的前 12 行。
 
 数据 ZIP 的 SHA-256：`a479b5d12d48e8a8b40a2e558f6bed8a88563b93ddf27f2a3f7a05dd88733b8d`。数据文件未提交到 main。此次不新增回归执行器，README 明确方案讨论、代码草稿、外部结果解读与阶段 B 正式统计执行/独立复核的区别。
+
+### 公开交付复核
+
+开发实现提交为 `e30bc112ad221ccf11ae87fdf0bbd8d0bab58c33`，main 使用版本为 `4b15722f5dd89458dac9d8b3cb58550c4c43af02`。通过普通 `git clone`（未指定分支或稀疏检出）得到 main；从公开 URL 下载的 GitHub ZIP 提交标识相同。两种交付均为 47 个使用文件，逐文件字节相同，也与开发分支的使用归档相同；无 CSV、数据 ZIP、examples、tests、scripts 或内部文档，三份运行手册完整。两个 Skill 包一致，所有本地 Markdown 链接可解析。
+
+`trial-data-v1` 已发布为独立预发布附件：[下载数据 ZIP](https://github.com/jyq0221/econbiz-research-copilot/releases/download/trial-data-v1/econbiz-trial-data-v1.zip)。用无需登录的公开链接重新下载，13,479 字节，SHA-256 与上文一致，包内 6 个文件及逐文件校验值均通过。
+
+使用该重新下载的数据，分别从 GitHub clone 目录和 GitHub ZIP 解压目录启动独立 Python 进程，确认实际 import 来自对应交付目录：240 行版本检查 passed，243 行版本检查 failed；两者均保存检查报告和研究上下文，重新打开项目后恢复未知项“尚未运行回归”。两份外部输入的原始字节未改变。
