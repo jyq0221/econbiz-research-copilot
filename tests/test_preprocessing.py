@@ -319,6 +319,48 @@ class PreprocessingTests(unittest.TestCase):
         self.assertEqual(rows(actual)[1]['z'], '0')
 
     @unittest.skipUnless(HAS_STATA, 'set ECONBIZ_TEST_STATA to opt into native Stata')
+    def test_native_winsor_threshold_keeps_boundary_filter_sample(self):
+        prepare, _ = self.api()
+        raw = b'firm,year,x\n001,1,0\n002,1,1\n'
+        step = dict(op='winsor', source='x', target='w', lower=.01, upper=.99, by=[])
+        actual, audit = self.native(raw, recipe(step))
+        self.assertEqual(audit['steps'][0]['groups'][0]['lower_threshold'], .01)
+        self.assertEqual(float(rows(actual)[0]['w']), .01)
+        for operator, threshold, expected_ids in [('gt', .01, ['002']), ('lt', .99, ['001'])]:
+            with self.subTest(operator=operator):
+                spec = recipe(step, dict(op='filter', source='w', operator=operator, value=threshold))
+                actual, _ = self.native(raw, spec)
+                expected, _ = prepare(raw, spec)
+                self.assertEqual([r['firm'] for r in rows(actual)], expected_ids)
+                self.assertEqual(rows(actual), rows(expected))
+        raw = b'firm,year,x\n001,1,-0.99\n002,1,-0.98\n'
+        spec = recipe(dict(op='winsor', source='x', target='w', lower=.25, upper=1, by=[]),
+                      dict(op='filter', source='w', operator='gt', value=-.9875))
+        actual, _ = self.native(raw, spec)
+        expected, _ = prepare(raw, spec)
+        self.assertEqual([r['firm'] for r in rows(actual)], ['002'])
+        self.assertEqual(rows(actual), rows(expected))
+
+    @unittest.skipUnless(HAS_STATA, 'set ECONBIZ_TEST_STATA to opt into native Stata')
+    def test_native_centered_decimal_zero_keeps_filter_sample(self):
+        prepare, _ = self.api()
+        raw = b'firm,year,group,x\n001,1,A,0.01\n002,1,A,0.02\n003,1,A,0.03\n004,1,B,-0.99\n005,1,B,-0.98\n006,1,B,-0.97\n'
+        for op, target in [('center', 'c'), ('standardize', 'z')]:
+            step = dict(op=op, source='x', target=target, by=['group'])
+            if op == 'standardize':
+                step.update(ddof=1, zero='error')
+            with self.subTest(op=op):
+                actual, audit = self.native(raw, recipe(step))
+                self.assertEqual(float(rows(actual)[1][target]), 0)
+                self.assertEqual(float(rows(actual)[4][target]), 0)
+                self.assertEqual(audit['steps'][0]['groups'][0]['mean'], .02)
+                spec = recipe(step, dict(op='filter', source=target, operator='gt', value=0))
+                actual, _ = self.native(raw, spec)
+                expected, _ = prepare(raw, spec)
+                self.assertEqual([r['firm'] for r in rows(actual)], ['003', '006'])
+                self.assertEqual(rows(actual), rows(expected))
+
+    @unittest.skipUnless(HAS_STATA, 'set ECONBIZ_TEST_STATA to opt into native Stata')
     def test_native_numeric_serialization_roundtrips_and_limits_derived_text_operations(self):
         prepare, _ = self.api()
         from econbiz.preprocessing_script import render_preparation_script

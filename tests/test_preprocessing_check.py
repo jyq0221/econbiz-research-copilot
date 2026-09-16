@@ -60,6 +60,15 @@ class PreparationCheckTests(unittest.TestCase):
                 mock.patch('econbiz.preprocessing._quantile', side_effect=AssertionError('shared quantile forbidden')):
             self.assertEqual(verify(raw, spec, actual)['check_status'], 'passed')
 
+    def test_winsor_boundary_filter_matches_independent_linear_quantile(self):
+        verify = self.api()
+        raw = b'firm,year,x\n001,1,-0.99\n002,1,-0.98\n'
+        spec = recipe(dict(op='winsor', source='x', target='w', lower=.25, upper=1, by=[]),
+                      dict(op='filter', source='w', operator='gt', value=-.9875))
+        actual, _ = prepare_data(raw, spec)
+        self.assertEqual(verify(raw, spec, actual)['check_status'], 'passed')
+        self.assertEqual([row['firm'] for row in csv.DictReader(io.StringIO(actual.decode()))], ['002'])
+
     def test_mutated_numeric_missing_raw_key_order_and_headers_fail(self):
         verify = self.api()
         raw, spec = self.fixture()

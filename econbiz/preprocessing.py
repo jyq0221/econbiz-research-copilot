@@ -167,7 +167,13 @@ def _quantile(values, probability):
     position = (len(values) - 1) * probability
     lower, upper = math.floor(position), math.ceil(position)
     fraction = position - lower
-    return values[lower] * (1 - fraction) + values[upper] * fraction
+    low, high = values[lower], values[upper]
+    delta = high - low
+    if not math.isfinite(delta):
+        return low * (1 - fraction) + high * fraction
+    # Interpolate from the nearer endpoint, matching the independent linear
+    # quantile's numerical convention at subsequent strict filter boundaries.
+    return low + delta * fraction if fraction < .5 else high - delta * (1 - fraction)
 
 
 def _keep(row, step):

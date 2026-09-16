@@ -224,7 +224,10 @@ class Project:
         from .files import verify_file
         artifact = self._get(artifact_id)
         if (artifact['kind'] != 'script_run' or artifact['execution_status'] != 'completed'
-                or artifact['check_status'] != 'pending' or not artifact['content'].get('finished_at')):
+                or artifact['check_status'] != 'pending' or not artifact['content'].get('finished_at')
+                or artifact['content'].get('execution_status') != 'completed'
+                or artifact['content'].get('check_status') != 'pending'
+                or artifact['content'].get('statistical_verification') != 'not_performed'):
             raise WorkflowError('项目脚本执行证据不完整或已失效')
         for ref in artifact.get('files', []):
             verify_file(self.base_dir, ref)
@@ -245,6 +248,8 @@ class Project:
     def _require_usable(self, artifact_id):
         from .files import verify_file
         a = self._get(artifact_id)
+        if a['kind'] == 'script_run':
+            raise WorkflowError('项目脚本运行尚未独立统计复核；仅可检查执行来源')
         if a['execution_status'] != 'completed' or a['check_status'] != 'passed':
             raise WorkflowError(f'{artifact_id} 尚未完成并通过检查，不能继续消费')
         for ref in a.get('files', []):
@@ -321,6 +326,12 @@ class Project:
         a = self._get(artifact_id)
         if a['execution_status'] == 'stale' or a['check_status'] == 'stale':
             raise WorkflowError('过期产物必须显式修订并重新检查，不能通过切换状态恢复')
+        if a['kind'] == 'script_run':
+            if check_status == 'passed' or execution_status == 'completed':
+                raise WorkflowError('项目脚本完成状态只能由实际运行收尾登记，不能手动升级或认证')
+            if execution_status == 'running' and (a['execution_status'] != 'pending'
+                    or a['content'].get('finished_at') or check_status != 'pending'):
+                raise WorkflowError('已开始或结束的项目脚本须用新运行标识重跑')
         if execution_status in {'running', 'completed'}:
             self._check_dependencies(artifact_id)
         if a['kind'] == 'result' and (execution_status == 'completed' or a['execution_status'] == 'completed'):

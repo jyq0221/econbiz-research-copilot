@@ -133,7 +133,7 @@
 <details>
 <summary>查看目前的验证范围</summary>
 
-- 阶段 A 原有 108 项测试保留；阶段 B 新增真实回归、独立数值对照、错误注入、冻结包重跑与报告检查。最新结果见 [开发分支验收记录](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/stage-b-validation.md)。
+- 阶段 A 原有 108 项测试保留；阶段 B 新增真实回归、独立数值对照、错误注入、冻结包重跑与报告检查。项目脚本和常见处理的最新结果见 [开发分支验收记录](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/agent-analysis-validation.md)。
 - 10 个 Codex 合成情境及独立新会话接续完成实测，记录了超时、修复与复测过程。
 - Claude Code 的适配文件已提供，实际宿主与跨宿主交接尚未完成验证。
 - 正在邀请真实使用反馈，尚未据此验证初学者的学习效果。

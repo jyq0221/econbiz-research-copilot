@@ -350,11 +350,15 @@ string scalar eb_simple(struct eb_table scalar t, string scalar op, string rowve
     return(eb_counts(output,sum(output:<.)+invalid,invalid))
 }
 real scalar eb_quantile(real colvector v, real scalar p) {
-    real scalar a, fraction
+    real scalar a, fraction, low, high, delta
     if (!rows(v)) return(.)
-    a = (rows(v)-1)*p+1
+    a = (rows(v)-1)*p
     fraction = a-floor(a)
-    return(v[floor(a)]*(1-fraction)+v[ceil(a)]*fraction)
+    low=v[floor(a)+1]
+    high=v[ceil(a)+1]
+    delta=high-low
+    if (missing(delta)) return(low*(1-fraction)+high*fraction)
+    return(fraction<.5 ? low+delta*fraction : high-delta*(1-fraction))
 }
 string scalar eb_group(struct eb_table scalar t, string scalar op, string scalar source,
                       string scalar target, string rowvector by, real scalar lower,
@@ -403,6 +407,10 @@ string scalar eb_group(struct eb_table scalar t, string scalar op, string scalar
                 if (v[1]==v[n]) m=v[1]
                 else if (any((v:-v[1]):>=.)) m=quadsum(v:/n)
                 else m=v[1]+quadsum((v:-v[1]):/n)
+                // Refine the rounded mean with its residuals. Rounding each
+                // deviation before summation can change exact zero comparisons.
+                centered=v:-m
+                if (!any(centered:>=.)) m=m+mean(centered)
             }
             if (op=="standardize" & n>ddof) {
                 centered=v:-m

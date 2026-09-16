@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 from econbiz.plans import register_plan, revise_plan
 from econbiz.research_history import has_prior_results
-from econbiz.state import WorkflowError
+from econbiz.state import Project, WorkflowError
 from econbiz.workspace import Workspace
 from test_plans import candidate
 
@@ -86,6 +86,37 @@ class ProjectScriptTests(unittest.TestCase):
         self.assertEqual(old.read_text(), 'partial coef=2')
         with self.assertRaises(WorkflowError):
             revise_plan(self.w.project, 'p', self.plan, '更改研究设定', 'inventory')
+
+    def test_script_status_cannot_claim_statistical_verification(self):
+        api = self.api()
+        self.approved()
+        self.save()
+        api.execute_project_script(self.w, 'done', 'code')
+        with self.assertRaises(WorkflowError):
+            self.w.project.mark('done', 'completed', 'passed', '脚本声称通过')
+        with self.assertRaises(WorkflowError): self.w.project.require_usable('done')
+        self.assertEqual(self.w.project.require_executed_script('done')['check_status'], 'pending')
+        # Older saved states can already contain the invalid outer label.
+        snapshot = self.w.project.snapshot()
+        snapshot['artifacts']['done']['check_status'] = 'passed'
+        old = Project(snapshot, base_dir=self.w.root)
+        with self.assertRaises(WorkflowError): old.require_usable('done')
+
+    def test_failed_script_cannot_be_relabelled_as_completed(self):
+        api = self.api()
+        self.approved()
+        self.save("from pathlib import Path\nPath('result.txt').write_bytes(Path('input.csv').read_bytes())\nraise RuntimeError('partial output')\n")
+        run = api.execute_project_script(self.w, 'failed', 'code')
+        self.assertEqual(run['execution_status'], 'failed')
+        with self.assertRaises(WorkflowError):
+            self.w.project.mark('failed', 'completed', 'pending', '已有部分输出')
+        with self.assertRaises(WorkflowError): self.w.project.require_executed_script('failed')
+        with self.assertRaises(WorkflowError):
+            api.import_script_output(self.w, 'partial', 'failed', 'result.txt', reason='尝试消费失败输出')
+        snapshot = self.w.project.snapshot()
+        snapshot['artifacts']['failed'].update(execution_status='completed', check_status='pending')
+        old = Project(snapshot, base_dir=self.w.root)
+        with self.assertRaises(WorkflowError): old.require_executed_script('failed')
 
     def test_missing_output_timeout_and_symlink_are_failures(self):
         api = self.api()
