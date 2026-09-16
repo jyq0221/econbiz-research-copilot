@@ -8,7 +8,7 @@ description: Use when the user needs to inspect economics or business data, unde
 ## 先读与能力
 
 先读实际数据说明、来源版本、方案及授权；盘点无需先有回归方案。读 [工具契约](../../../docs/research-handbook/tool-contracts.md) 和 [共同原则](../../../docs/research-handbook/principles.md)。
-CSV 结构盘点仍可独立使用。阶段 B 已支持 Excel/CSV 适配、Python 描述统计、企业/年度线性固定效应及独立数值复核；实际调用前读 [正式分析](../../../docs/research-handbook/analysis-execution.md)。Stata 和其他方法尚未接入，保留需求，不降格为普通关联回归。
+CSV 结构盘点仍可独立使用。阶段 B 已支持 Excel/CSV 适配、默认 Python 或可选 Stata 描述统计、企业/年度线性固定效应及独立数值复核；实际调用前读 [正式分析](../../../docs/research-handbook/analysis-execution.md)。Stata 当前仅验收 macOS arm64 / 19；DID、IV 等其他方法保留需求，不降格为普通关联回归。
 
 ## 执行与判断
 
@@ -16,6 +16,7 @@ CSV 结构盘点仍可独立使用。阶段 B 已支持 Excel/CSV 适配、Pytho
 合并或样本流失先读输入、键和已有脚本，检查一对一/一对多关系及各步实际计数。没有计数就标未核实，不套教学数字。超出现有工具的处理先明确脚本与核验需求，不宣称完成。
 
 正式运行用 execute_analysis(workspace, 新运行标识, 方案标识)。核实 analysis 依赖、execution 明确规则及当前批准版本，原授权适用时不重复确认。旧方案缺 execution 须先形成具体修订，不能猜测筛选条件。已授权方案内可以重跑，不覆盖旧运行。
+默认 backend='python'，无 Stata 也能完成正式估计、独立 Python 复核、报告与重跑，不探测或要求安装 Stata。用户选择 Stata 时才用 backend='stata' 及实际入口，按手册核对环境；失败须说明，不能静默换引擎。两种正式引擎均由独立 Python 实现复核。相同当前批准方案和输入可用新运行标识、replication_of=原运行标识换引擎复现，不重复批准或自动改为探索。没有 Stata 仍可读取已保存的 Stata 结果，原生重跑需要匹配 Stata 环境。
 查看返回的 execution_status/check_status、sample、result、verification 与日志，不能只看进程退出码。只有 completed/passed 才交给 write_result_report；失败/过期结果不可用于正式解释。自定义变量处理须保留代码和来源，当前固定运行器不自动认证任意处理脚本。
 
 ## 输出与检查

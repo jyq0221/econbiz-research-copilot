@@ -41,7 +41,7 @@ def _summaries(numbers, names):
     return summaries
 
 
-def _reference(rows, spec):
+def _reference(rows, spec, *, include_covariance=False):
     if not isinstance(rows, list) or not rows:
         raise WorkflowError('独立复核要求非空样本')
     if not isinstance(spec, dict) or set(spec) != {'model', 'y', 'x', 'fixed_effects', 'entity', 'time', 'standard_errors', 'confidence'}:
@@ -91,6 +91,8 @@ def _reference(rows, spec):
     n, p = len(rows), len(fields)
     result = dict(model=spec['model'], parameters=[], nobs=n, rank=None, df_resid=None, inference_df=None,
                   sample_keys=keys, actual_spec=copy.deepcopy(spec), descriptive={}, diagnostics={}, warnings=[])
+    if include_covariance:
+        result['covariance_matrix'] = []
     result['descriptive'] = _summaries(numbers, names)
     if not linear:
         result['diagnostics'] = dict(engine='independent sorted summaries and compensated sums')
@@ -174,6 +176,9 @@ def _reference(rows, spec):
         covariance = correction*(bread @ meat @ bread)
     errors = np.sqrt(np.diag(covariance))*(scales[p]/scales[:p])
     coefficients = coefficients*(scales[p]/scales[:p])
+    if include_covariance:
+        units = scales[p]/scales[:p]
+        result['covariance_matrix'] = (covariance*units[:, None]*units[None, :]).tolist()
     if not np.isfinite(errors).all() or np.any(errors <= 0) or not np.isfinite(coefficients).all():
         raise WorkflowError('独立复核的标准误或系数无效')
     inference_df = len(set(clusters))-1 if clusters else df
@@ -200,16 +205,19 @@ def _reference(rows, spec):
     return json_copy(result)
 
 
-def verify_numerics(rows, spec, result):
+def verify_numerics(rows, spec, result, *, backend='python'):
     """Return a JSON-safe pass/fail report, including for malformed results.
 
     A failed reference calculation is a failed check, never evidence that a
     primary result was independently reproduced.
     """
     report = dict(check_status='failed', rtol=RTOL, atol=ATOL, checks=[], reference=None)
+    if backend not in ('python', 'stata'):
+        report['checks'].append(dict(name='backend', passed=False, detail='不支持的执行引擎'))
+        return report
     try:
         with np.errstate(over='raise', invalid='raise', divide='raise'):
-            reference = _reference(rows, spec)
+            reference = _reference(rows, spec, include_covariance=backend == 'stata')
         report['reference'] = reference
     except (WorkflowError, ValueError, TypeError, KeyError, IndexError, ZeroDivisionError,
             FloatingPointError, OverflowError, MemoryError, np.linalg.LinAlgError) as exc:
@@ -264,6 +272,8 @@ def verify_numerics(rows, spec, result):
 
     for field in ('model', 'nobs', 'rank', 'df_resid', 'inference_df', 'parameters', 'descriptive', 'warnings'):
         compare(field, result.get(field), reference[field])
+    if backend == 'stata':
+        compare('covariance_matrix', result.get('covariance_matrix'), reference['covariance_matrix'])
     exact_sample = result.get('sample_keys') == reference['sample_keys']
     checks.append(dict(name='sample_keys', passed=exact_sample,
                        detail='样本键及顺序完全一致' if exact_sample else '样本键或顺序不一致'))
@@ -278,15 +288,19 @@ def verify_numerics(rows, spec, result):
         diagnostic_fields = ('fixed_effect_rank', 'fixed_effect_components', 'singleton_entity_count', 'singleton_time_count',
                              'covariance', 'cluster_count', 'covariance_correction', 'residual_sum_squares',
                              'scaled_condition_number', 'singletons', 'auto_df', 'count_effects', 'debiased', 'group_debias', 'inference_distribution')
+        if backend == 'stata':
+            implementation_options = {'scaled_condition_number', 'auto_df', 'count_effects', 'debiased', 'group_debias'}
+            diagnostic_fields = tuple(f for f in diagnostic_fields if f not in implementation_options)
         exact_diagnostics = isinstance(primary_diagnostics, dict) and set(primary_diagnostics) == set(diagnostic_fields) | {'engine'}
         checks.append(dict(name='diagnostics.structure', passed=exact_diagnostics,
                            detail='诊断字段完整一致' if exact_diagnostics else '诊断字段缺失或包含不支持的字段'))
         compare('diagnostics.engine', primary_diagnostics.get('engine') if isinstance(primary_diagnostics, dict) else None,
-                'linearmodels.PanelOLS')
+                'linearmodels.PanelOLS' if backend == 'python' else 'stata.areg')
         for field in diagnostic_fields:
             compare(f'diagnostics.{field}', primary_diagnostics.get(field) if isinstance(primary_diagnostics, dict) else None,
                     reference['diagnostics'][field])
     else:
-        compare('diagnostics', result.get('diagnostics'), dict(engine='numpy descriptive statistics'))
+        compare('diagnostics', result.get('diagnostics'),
+                dict(engine='numpy descriptive statistics' if backend == 'python' else 'stata.descriptive'))
     report['check_status'] = 'passed' if all(c['passed'] for c in checks) else 'failed'
     return json_copy(report)

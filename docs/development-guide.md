@@ -4,13 +4,15 @@
 
 ## 环境和验证
 
-研究准备使用 Python 3.9+ 标准库；阶段 B 正式分析需要 pyproject.toml 的固定 analysis 可选依赖，未安装时仍可使用阶段 A。statsmodels==0.14.6 是 linearmodels 的依赖，测试也用其显式虚拟变量 OLS 作为第三方参考；生产主回归调用 PanelOLS，独立参考不调用这两个估计器。可选研究 Git 需要本机 Git。维护仓库不放真实研究数据，自动化测试在临时目录建立合成项目。
+研究准备使用 Python 3.9+ 标准库；阶段 B 正式分析需要 pyproject.toml 的固定 analysis 可选依赖，未安装时仍可使用阶段 A。statsmodels==0.14.6 是 linearmodels 的依赖，测试也用其显式虚拟变量 OLS 作为第三方参考；Python 主回归调用 PanelOLS，可选 Stata 主回归调用 areg，独立参考不调用这些估计器。可选研究 Git 需要本机 Git。维护仓库不放真实研究数据，自动化测试在临时目录建立合成项目。
 
 ```sh
 python3 -m unittest discover -s tests -v
 python3 scripts/sync_skills.py --check
 git diff --check
 ```
+
+真实 Stata 测试使用 `ECONBIZ_TEST_STATA=实际可执行路径 python3 -W error -m unittest discover -s tests -q`；未设置时明确跳过，不能据此声称 Stata 实测通过。开发版本验收见 [双引擎验收](stata-validation.md)。
 
 修改维护源后运行 `python3 scripts/sync_skills.py`，提交两套普通文件。同步只处理五个明确的 econbiz Skill，检查模式不写文件；其他技能不动。程序测试不代表模型实际读取了 Skill，见 [测试情境](../tests/agent_cases/README.md) 和 [验证记录](agent-entry-validation.md)。
 
@@ -28,6 +30,8 @@ git diff --check
 | analysis_input / execution_spec | XLSX/CSV 接入、明确执行规则及逐步样本审计 |
 | estimation / numerical_check | PanelOLS 主估计与独立 SciPy 稀疏投影/数值复核 |
 | analysis_environment / execution / run_worker | 固定依赖、冻结代码/输入/环境、子进程执行与失败收尾 |
+| stata_runtime / processes | 按需探测 Stata、冻结身份与进程组超时/取消收尾 |
+| stata_engine / stata_script | 原生估计、传递保真、样本及矩阵证据解析 |
 | result_report | 只消费已核验结果的表格、判断—证据及中文解释 |
 | research_git | 明确范围内的单项研究本地 Git，可选且无远端操作 |
 
