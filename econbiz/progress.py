@@ -14,16 +14,28 @@ TASK_LABELS = {'queued': '待开展', 'in_progress': '进行中', 'waiting': '�
 
 def project_context(project):
     state = project.snapshot()
-    records, tasks, plans, issues = {}, {}, {}, {}
+    records, tasks, plans, issues, deliveries = {}, {}, {}, {}, {}
     for key, artifact in state['artifacts'].items():
         if artifact['kind'] == 'workspace_layout':
             continue
         problem = None
         try:
             project.require_usable(key)
+            if artifact['kind'] in {'model_comparison', 'word_report', 'document_review'}:
+                from types import SimpleNamespace
+                from .comparison import read_model_comparison
+                from .document_checks import read_word_report, read_document_review
+                if project.base_dir is None:
+                    raise WorkflowError('交付记录需要实际项目文件核对')
+                readers = dict(model_comparison=read_model_comparison,
+                               word_report=read_word_report, document_review=read_document_review)
+                readers[artifact['kind']](SimpleNamespace(project=project, root=project.base_dir), key)
         except WorkflowError as exc:
             problem = str(exc)
             issues[key] = problem
+        if artifact['kind'] in {'model_comparison', 'word_report', 'document_review'}:
+            deliveries[key] = dict(version=artifact['version'], content=artifact['content'],
+                                   files=artifact['files'], usable=problem is None, problem=problem)
         if artifact['kind'] == 'plan':
             plans[key] = dict(version=artifact['version'], content=artifact['content'],
                               execution_status=artifact['execution_status'], usable=problem is None)
@@ -50,7 +62,7 @@ def project_context(project):
             if problem is None:
                 records[key] = artifact
     return dict(project_id=state['project_id'], direction=state['direction'], records=records, tasks=tasks,
-                plans=plans, issues=issues, decisions=state['decisions'],
+                plans=plans, issues=issues, deliveries=deliveries, decisions=state['decisions'],
                 next_steps=[a['content']['next_step'] for a in records.values() if 'next_step' in a['content']])
 
 
@@ -79,6 +91,17 @@ def render_progress(project):
             content = task['content']
             lines.append(f'- {content["title"]}（{key}）：任务 {TASK_LABELS[task["effective_status"]]}；记录 {task["record_status"]}')
             lines.append(f'  下一步：{content["next_step"]}；等待原因：{content["blocked_reason"] or "无"}')
+        lines.append('')
+    if summary['deliveries']:
+        lines += ['## 结果交付', '']
+        for key, item in summary['deliveries'].items():
+            c = item['content']
+            lines.append(f'- {key} v{item["version"]}：' + ('当前有效' if item['usable'] else '需要重新核对'))
+            if 'visual_check' in c:
+                lines.append(f'  渲染：{c.get("render_check", "not_performed")}；视觉检查：{c["visual_check"]}')
+            for ref in item['files']:
+                if ref['path'].endswith(('.docx', '.md')):
+                    lines.append(f'  文件：[{key}]({ref["path"]})')
         lines.append('')
     if summary['issues']:
         lines += ['## 待处理', ''] + [f'- {key}：{issue}' for key, issue in summary['issues'].items()] + ['']

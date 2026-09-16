@@ -29,6 +29,8 @@ description: Use when the user starts, continues, or organizes an economics or b
 
 ## 输出、保存和检查
 
+用户要求整理多模型结果或交付 Word 时，读 interpret 和 [结果交付](../../../docs/research-handbook/result-delivery.md)，从当前有效运行完成比较、出表、检查与保存。接续时核对比较、Word 和独立版式检查记录，不能把生成文件当作已完成逐页验收。
+
 交付对当前问题的判断、材料和有理由的下一步。重要更正沿同一记录标识修订，保留可见摘录、来源和原因。
 实质工作结束保存 session_note、真实产物引用及任务状态；completed 必须有当前可用输出。检查回执及 [进度概览](assets/progress-overview.md)：状态失败不能说已保存，视图失败单独说明。
 恢复时核对版本及真实文件；人工概览修改是待核实输入，不作为批准。缺工具时继续独立可做的讨论，说明结构化保存、检索或计算尚未完成。结束当前写入后再切换宿主。

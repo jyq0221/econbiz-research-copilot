@@ -4,12 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "econbiz-research-copilot"
-version = "0.2.0a3"
+version = "0.3.0a1"
 description = "Evidence-led research workflow with checked Python and optional Stata analysis"
 requires-python = ">=3.9"
 dependencies = []
 
 [project.optional-dependencies]
+documents = ["python-docx==1.2.0"]
+document-review = ["python-docx==1.2.0", "pypdf==6.10.2", "Pillow==11.3.0"]
 analysis = [
     "numpy==2.0.2",
     "scipy==1.13.1",
