@@ -42,6 +42,12 @@
 
 ## 开始试用
 
+### 使用前需要准备什么？
+
+**你需要先准备一个能读取和修改项目文件、调用工具并执行代码的 AI Agent 环境。** 例如 Codex、Claude Code，或接入 DeepSeek 等模型的 **Agent Harness**（为模型提供文件访问、工具调用和代码执行能力的运行环境）。请先配置好可用模型，并允许它访问项目目录和执行所需程序。
+
+本项目提供研究流程、Skills 和分析工具，AI 助手及模型服务由你使用的 Agent 环境提供。当前实际宿主验收以 Codex 为主；Claude Code 已提供适配入口，其他环境的兼容性需按实际使用情况核对。
+
 ### 1. 把项目放到电脑上
 
 在本页上方点击 **Code → Download ZIP**，或[直接下载使用包](https://github.com/jyq0221/econbiz-research-copilot/archive/refs/heads/main.zip)，下载后解压。
@@ -50,9 +56,9 @@
 
 没有自己的数据？[单独下载测试数据包](https://github.com/jyq0221/econbiz-research-copilot/releases/download/trial-data-v1/econbiz-trial-data-v1.zip)。里面有完整面板、带问题的练习版、字段说明和核对答案，按需下载即可。
 
-### 2. 用 Codex 打开整个项目文件夹
+### 2. 在 Agent 环境中打开整个项目文件夹
 
-选择能看到本 README、`AGENTS.md` 和 `econbiz` 的那一层文件夹，然后新建对话。此仓库提供研究流程和工具，AI 对话由你已配置好的 Codex 提供。
+在你已配置好的 Agent 环境中，选择能看到本 README、`AGENTS.md` 和 `econbiz` 的那一层文件夹，然后新建对话，让助手读取项目入口。
 
 只讨论选题可以先开始；检查 CSV、保存项目和恢复文件需要电脑上有 **Python 3.9 或更新版本**。不确定环境时，可以先对助手说：
 
