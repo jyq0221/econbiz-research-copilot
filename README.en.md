@@ -117,9 +117,9 @@ Open the repository root when resuming. If different assistants take turns on th
 
 ## What is implemented?
 
-**Research preparation, the first formal analysis tools, and development-stage model comparison and Word delivery are connected.** The workflow supports Excel/CSV input, descriptive statistics, fixed-effects regressions, independent numerical checks, result reports, versioning, and resumption. Python is the default; Stata is optional.
+**Research preparation, the first formal analysis tools, and model comparison and Word delivery are connected.** The workflow supports Excel/CSV input, descriptive statistics, fixed-effects regressions, independent numerical checks, result reports, versioning, and resumption. Python is the default; Stata is optional.
 
-The development version adds ordered comparisons of checked models, actual sample comparisons, and editable Word tables with three horizontal rules. Reports include variable definitions, descriptive statistics for each model's sample, and source versions. File generation, numeric/text checks, and page-by-page visual review are recorded separately. See [model comparison and Word delivery](docs/research-handbook/result-delivery.md) (Chinese). This stage has **not yet been published to the default main branch or ZIP**. The built-in Word template is currently Chinese.
+Version 0.3.0a1 adds ordered comparisons of checked models, actual sample comparisons, and editable Word tables with three horizontal rules. Reports include variable definitions, descriptive statistics for each model's sample, and source versions. File generation, numeric/text checks, and page-by-page visual review are recorded separately. See [model comparison and Word delivery](docs/research-handbook/result-delivery.md) (Chinese). These features are included in the default main branch and ZIP. The built-in Word template is currently Chinese.
 
 ### Can it actually run regressions?
 
