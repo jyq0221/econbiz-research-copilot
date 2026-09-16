@@ -115,3 +115,42 @@ print(json.dumps({'question': summary['records']['context']['content']['question
         result = subprocess.run([sys.executable, '-B', '-c', code], cwd=directory,
                                 capture_output=True, text=True, check=True)
         self.assertEqual(json.loads(result.stdout), {'question': '已保存的材料能否独立接续？', 'view': True})
+
+    @unittest.skipUnless(__import__('importlib').util.find_spec('docx') and __import__('importlib').util.find_spec('linearmodels'), 'analysis/documents extras missing')
+    def test_packaged_stage_c_actual_outputs_reopen(self):
+        from test_execution import study
+        from econbiz.execution import execute_analysis
+        from test_comparison import comparison_args
+        with tempfile.TemporaryDirectory() as directory:
+            w=study(Path(directory))
+            execute_analysis(w,'r1','p1'); execute_analysis(w,'r2','p1')
+            args=Path(directory)/'args.json'
+            args.write_text(json.dumps(comparison_args()))
+            code='''
+import json,sys
+from pathlib import Path
+import econbiz
+from econbiz.workspace import Workspace
+from econbiz.comparison import write_model_comparison,read_model_comparison
+from econbiz.word_report import write_word_report
+from econbiz.document_checks import read_word_report
+assert Path(econbiz.__file__).resolve().is_relative_to(Path.cwd())
+w=Workspace.open(sys.argv[1])
+write_model_comparison(w,sys.argv[3],**json.loads(Path(sys.argv[2]).read_text()))
+write_word_report(w,sys.argv[3]+'-word',sys.argv[3])
+a=read_word_report(Workspace.open(w.root),sys.argv[3]+'-word')
+assert a['content']['numeric_text_check']['status']=='passed'
+assert a['content']['visual_check']=='not_performed'
+'''
+            # Ordinary local clone of the runtime tree, independently of source checkout.
+            published=Path(directory)/'published'; shutil.copytree(self.package,published)
+            subprocess.run(['git','init','-q','-b','main',str(published)],check=True)
+            subprocess.run(['git','-C',str(published),'add','.'],check=True)
+            subprocess.run(['git','-C',str(published),'-c','user.name=Test','-c','user.email=test@example.invalid',
+                            '-c','commit.gpgsign=false','commit','-qm','runtime'],check=True)
+            clone=Path(directory)/'clone'
+            subprocess.run(['git','clone','-q',str(published),str(clone)],check=True)
+            for folder, name in [(self.package,'zip-cmp'),(clone,'clone-cmp')]:
+                result=subprocess.run([sys.executable,'-c',code,str(w.root),str(args),name],cwd=folder,
+                                      capture_output=True,text=True)
+                self.assertEqual(result.returncode,0,result.stdout+result.stderr)

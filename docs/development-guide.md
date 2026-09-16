@@ -77,3 +77,12 @@ git clone --branch codex/framework-foundation --single-branch https://github.com
 测试数据独立作为 `trial-data-v1` Release 附件发布，下载地址写在 README。附件包含完整合成面板、带问题的练习版、字段说明与核对答案；数据不提交到 main。发布后重新下载附件，核对散列、行数、企业年度键和预设问题。
 
 归档属性依据 [Git archive 文档](https://git-scm.com/docs/git-archive)。旧提交的 ZIP 内容不会被新规则追溯修改；请从当前默认分支重新下载。
+
+
+## 阶段 C：比较和文档交付
+
+开发版本 0.3.0a1 提供 `comparison_input` 的真实结果适配、`comparison` 的模型与样本比较、`comparison_display` 的统一展示、`word_report` 的 Word 生成和 `document_checks` 的实际内容及版式证据核对。接口见 [交付手册](research-handbook/result-delivery.md)，验收见 [阶段 C 记录](stage-c-validation.md)。
+
+开发安装 `python3 -m pip install -e '.[analysis,documents,document-review]'`。基础包仍无第三方依赖；Word 生成与视觉证据登记分别按需导入。python-docx 1.2.0（MIT）兼容 Python 3.9；pypdf 6.10.2 与 Pillow 11.3.0 用于 PDF 页数和 PNG 结构检查，均兼容 Python 3.9。实际渲染由宿主文档工具提供，不内置开发机器的路径。
+
+接续和进展显示对比较、Word、版式记录调用严格读取器，核对登记字节及上游内容。该检查可能重新计算独立统计参考值，不创建新的主估计运行。没有可选统计/文档依赖时，基础项目可读，交付标为需要核对，不沿用未检查的有效状态。

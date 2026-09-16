@@ -19,5 +19,7 @@ description: Use when the user asks to explain regression results, compare findi
 
 ## 检查与收尾
 
+多模型比较、基准/稳健性并列表和 Word 交付先读 [结果交付手册](../../../docs/research-handbook/result-delivery.md)。沿用实际模型角色与顺序，按变量定义对齐，核对真实样本键；整理现有结果不重跑分析。使用 write_model_comparison / write_word_report 保存版本，DOCX 内容核对、实际渲染与逐页视觉检查分别记录。缺少渲染不能宣称版式通过；未核验脚本不混入正式比较列。新会话用 read_model_comparison / read_word_report 核对有效材料。
+
 核对数值、方向、样本、单位和来源；系数、标准误、区间本身不能证明因果。保留合理设定及全部结果。
 工作记录与成稿分开，待办和占位不混入结果文字，不自动扩展为整篇论文。按 [工具契约](../../../docs/research-handbook/tool-contracts.md) 保存外部来源、带出处的 session_note 和真实输出，说明核对到哪一步及下一步理由。
