@@ -55,7 +55,7 @@ def check_stata_identity(runtime):
         raise WorkflowError('无法核对冻结的 Stata 环境') from exc
 
 
-def run_stata(runtime, do_file, cwd, *, timeout=240):
+def run_stata(runtime, do_file, cwd, *, timeout=240, log_path=None):
     check_stata_identity(runtime)
     do_file, cwd = Path(do_file).resolve(), Path(cwd).resolve()
     if do_file.parent != cwd or not do_file.is_file():
@@ -66,7 +66,7 @@ def run_stata(runtime, do_file, cwd, *, timeout=240):
         raise WorkflowError('嵌套 Stata 执行需要拥有进程组的受控工作进程')
     # When nested, the outer worker owns the one process group and its deadline.
     result = run_process(args, cwd=cwd, timeout=None if nested else timeout,
-                         new_group=not nested)
+                         new_group=not nested, **({'log_path': log_path} if log_path else {}))
     check_stata_identity(runtime)
     return result
 

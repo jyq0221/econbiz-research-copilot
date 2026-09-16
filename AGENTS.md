@@ -12,6 +12,8 @@
 
 阶段 A 提供研究准备、CSV 结构检查、记录与文件恢复。阶段 B 已接入有明确规则的描述统计、企业/年度固定效应、运行包与独立数值复核，调用前读正式分析手册。默认 Python，无 Stata 也可完整使用；显式选择 Stata 时才检查并启动原生引擎，首批仅验收 macOS arm64 / Stata 19，两条路径均由独立 Python 实现复核。不得把代码草稿、外部回归表或方案确认写成已执行、已复现的结果。
 
+分析请求按 [项目分析工作流](docs/research-handbook/project-analysis.md) 从问题与数据判断方法，自动完成常见处理、生成 Python/do-file、运行和技术修错。内置方法集合不是 Agent 能力上限；项目脚本的实际执行、处理核对和统计复核分别记录，未核验输出不得称为正式已复核结果。
+
 默认 `main` 分支和 ZIP 为使用版本。维护、测试与实施记录位于 `codex/framework-foundation` 开发分支；维护任务先定位该分支，不在使用版本中寻找被移出的开发文件。
 
 在开发分支维护 Skills 时以 `.agents/skills/` 为源，用 `python3 scripts/sync_skills.py` 同步普通文件副本，发布前运行 `--check` 和项目测试；实际宿主行为另行验收。

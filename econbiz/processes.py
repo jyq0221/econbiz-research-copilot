@@ -3,12 +3,20 @@
 import os
 import signal
 import subprocess
+from contextlib import ExitStack
 
 
-def run_process(args, *, cwd, timeout, env=None, new_group=True):
-    process = subprocess.Popen(args, cwd=cwd, env=env, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, text=True, encoding='utf-8',
-                               errors='replace', start_new_session=new_group and os.name == 'posix')
+def run_process(args, *, cwd, timeout, env=None, new_group=True, log_path=None):
+    with ExitStack() as stack:
+        log = stack.enter_context(open(log_path, 'x', encoding='utf-8')) if log_path else None
+        return _run_process(args, cwd=cwd, timeout=timeout, env=env, new_group=new_group, log=log)
+
+
+def _run_process(args, *, cwd, timeout, env, new_group, log):
+    output = dict(stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                  encoding='utf-8', errors='replace') if log is None else dict(stdout=log, stderr=subprocess.STDOUT)
+    process = subprocess.Popen(args, cwd=cwd, env=env,
+                               start_new_session=new_group and os.name == 'posix', **output)
     try:
         stdout, stderr = process.communicate(timeout=timeout)
     except BaseException:
@@ -23,4 +31,4 @@ def run_process(args, *, cwd, timeout, env=None, new_group=True):
             pass
         process.communicate()
         raise
-    return subprocess.CompletedProcess(args, process.returncode, stdout, stderr)
+    return subprocess.CompletedProcess(args, process.returncode, stdout or '', stderr or '')

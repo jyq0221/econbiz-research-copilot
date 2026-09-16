@@ -11,6 +11,8 @@ SUPPORTED = {('description', 'descriptive'), ('association', 'linear_fe')}
 
 def validate_plan(content, columns, require_supported=False):
     try:
+        if content.get('execution_route', 'builtin') not in {'builtin', 'project_script'}:
+            raise WorkflowError('执行路径须为 builtin 或 project_script')
         for key in TEXT_FIELDS:
             require_text(content[key], key)
         if content['goal'] not in {'description', 'association', 'causal', 'prediction'}:
