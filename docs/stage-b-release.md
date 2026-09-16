@@ -2,6 +2,8 @@
 
 日期：2026-09-16；版本：0.2.0a1；实现提交：e7aa6ef。
 
+本页保留 0.2.0a1 的历史发布证据；最新 0.2.0a3 的 main/ZIP 检查见 [自动分析与双引擎发布记录](agent-analysis-release.md)。
+
 ## 发布前结论
 
 可按当前功能边界发布试用版。用户已授权通过检查后推送。main 继续使用开发分支的 git archive 导出树，开发材料留在 codex/framework-foundation；不合并两分支、不重写历史。

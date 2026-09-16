@@ -42,7 +42,7 @@ git diff --check
 
 独立虚拟环境不继承系统包。在最终源码导出的 ZIP、实际克隆和安装包中，分别禁止 Stata 运行模块导入、可执行入口发现和 Stata 启动，均完成 72 观测的 Python 回归、独立复核、四种报告、重开及相同数值的冻结重跑；三者都能读取已有有效 Stata 报告。28 份工具源码与验收导出逐字节一致；本地验收 ZIP 的 SHA-256 为 `15ab13304629242c70764ad73043ec14e586670844fb9dfd9a654348335ad472`。
 
-临时合成证据保留于 `/private/tmp/econbiz-dual-validation-b9nrwkub/`，最终导出与安装记录位于其 `final/` 子目录；它们不是用户研究材料。本轮是开发实现与本地验收，不代表已更新远端 main 或公开发布。
+临时合成证据保留于 `/private/tmp/econbiz-dual-validation-b9nrwkub/`，最终导出与安装记录位于其 `final/` 子目录；它们不是用户研究材料。本轮是开发实现与本地验收；后续随 0.2.0a3 更新 main/ZIP 的实际结果见 [发布检查](agent-analysis-release.md)。
 
 ## 边界
 

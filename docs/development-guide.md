@@ -12,7 +12,7 @@ python3 scripts/sync_skills.py --check
 git diff --check
 ```
 
-真实 Stata 测试使用 `ECONBIZ_TEST_STATA=实际可执行路径 python3 -W error -m unittest discover -s tests -q`；未设置时明确跳过，不能据此声称 Stata 实测通过。开发版本验收见 [双引擎验收](stata-validation.md)。
+真实 Stata 全套测试使用 `ECONBIZ_TEST_STATA=实际可执行路径 ECONBIZ_STATA_EXECUTABLE=实际可执行路径 python3 -m unittest discover -s tests`；第二项显式启用通用原生项目脚本测试。未设置时明确跳过，不能据此声称 Stata 实测通过。最新验收见 [项目分析验收](agent-analysis-validation.md) 和 [使用版发布检查](agent-analysis-release.md)，原始双引擎实现记录见 [双引擎验收](stata-validation.md)。
 
 修改维护源后运行 `python3 scripts/sync_skills.py`，提交两套普通文件。同步只处理五个明确的 econbiz Skill，检查模式不写文件；其他技能不动。程序测试不代表模型实际读取了 Skill，见 [测试情境](../tests/agent_cases/README.md) 和 [验证记录](agent-entry-validation.md)。
 
@@ -32,6 +32,8 @@ git diff --check
 | analysis_environment / execution / run_worker | 固定依赖、冻结代码/输入/环境、子进程执行与失败收尾 |
 | stata_runtime / processes | 按需探测 Stata、冻结身份与进程组超时/取消收尾 |
 | stata_engine / stata_script | 原生估计、传递保真、样本及矩阵证据解析 |
+| preprocessing / preprocessing_script / preprocessing_check | 有序处理规则、Python/Mata 代码生成、独立处理值核对 |
+| project_scripts / script_contracts / script_worker | 项目代码与输入冻结、真实执行、技术重试及处理来源登记 |
 | result_report | 只消费已核验结果的表格、判断—证据及中文解释 |
 | research_git | 明确范围内的单项研究本地 Git，可选且无远端操作 |
 
@@ -60,7 +62,7 @@ python3 -m econbiz audit /tmp/econbiz-synthetic-study examples/panel.csv --entit
 
 ## 默认使用版本与开发分支
 
-`main` 为使用版本，默认 clone 和 ZIP 都保留两套项目 Skills、模板、econbiz、入口、软件包配置、四份运行手册及试用反馈模板。main 使用文件树不包含 examples、tests、scripts、开发文档或实施记录。既有 Git 历史不重写。
+`main` 为使用版本，默认 clone 和 ZIP 都保留两套项目 Skills、模板、econbiz、入口、软件包配置、使用手册及试用反馈模板。main 使用文件树不包含 examples、tests、scripts、开发文档或实施记录。既有 Git 历史不重写。
 
 完整维护材料保存在 `codex/framework-foundation` 分支。开发时明确选择该分支：
 
@@ -68,7 +70,7 @@ python3 -m econbiz audit /tmp/econbiz-synthetic-study examples/panel.csv --entit
 git clone --branch codex/framework-foundation --single-branch https://github.com/jyq0221/econbiz-research-copilot.git
 ```
 
-开发分支的 `.gitattributes` 通过 `export-ignore` 导出使用文件。发布时，在临时隔离的 main checkout 中用开发分支的 `git archive` 内容替换受版本控制的文件，再正常提交、推送；不得把开发分支整体合并到 main，也不得强制推送或重写历史。检查删除项都是已保留在开发分支的维护材料，入口、两个 Skill 包、工具代码与四份手册必须完整保留。
+开发分支的 `.gitattributes` 通过 `export-ignore` 导出使用文件。发布时，在临时隔离的 main checkout 中用开发分支的 `git archive` 内容替换受版本控制的文件，再正常提交、推送；不得把开发分支整体合并到 main，也不得强制推送或重写历史。检查删除项都是已保留在开发分支的维护材料，入口、两个 Skill 包、工具代码与使用手册必须完整保留。
 
 `tests/test_distribution.py` 在临时仓库生成真实 ZIP，检查排除范围、保留入口、相对链接，以及解压后独立保存/接续；还将同一使用文件树建立为 main 并实际 clone，比较文件字节且独立运行。发布后从 GitHub 默认 clone、实际下载 ZIP，逐文件核对一致性与可运行性。
 

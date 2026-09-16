@@ -1,6 +1,6 @@
 # Agent 分析与项目脚本验收（0.2.0a3）
 
-日期：2026-09-16。开发分支：`codex/framework-foundation`。本记录对应项目脚本工作流的第一批实现；不表示 main/ZIP 已发布，也不表示所有方法均已具备通用数值核验。
+日期：2026-09-16。开发分支：`codex/framework-foundation`。本记录对应项目脚本工作流的第一批实现与复核；main/ZIP 的实际发布检查见 [发布记录](agent-analysis-release.md)。本记录不表示所有方法均已具备通用数值核验。
 
 ## 自动检查
 
