@@ -10,10 +10,12 @@ def has_prior_results(project):
         versions = [artifact] + state['history'].get(key, [])
         if artifact['kind'] == 'source' and any(v['content'].get('role') == 'external_result' for v in versions):
             return True
-        if artifact['kind'] != 'result':
+        if artifact['kind'] not in {'result', 'script_run'}:
             continue
         if any(v['content'].get('result_output_present') is True for v in versions):
             return True
+        if artifact['kind'] == 'script_run':
+            continue
         if any(v.get('has_completed_result') is True or v['execution_status'] in {'completed', 'stale'} for v in versions):
             return True
     return False

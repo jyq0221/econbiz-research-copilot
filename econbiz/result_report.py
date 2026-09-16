@@ -26,6 +26,7 @@ def _md(value):
 def render_markdown(content):
     sample = content['sample']
     lines = ['# 分析结果与证据', '', f'研究问题：{_md(content["question"])}', '',
+             f'正式执行：{_md(content.get("backend", "python"))}；独立复核：Python 独立参考算法。', '',
              f'运行前判断：{_md(content["judgment"])}', '',
              f'分析样本：{sample["final_rows"]} 个观测，{sample["entities"]} 个主体。'
              f'加入控制变量的额外完整案例损失：{sample["control_additional_loss"]} 个观测。', '',
@@ -85,7 +86,8 @@ th:first-child,td:first-child{{text-align:left}}th{{border-top:2px solid #246a62
 .scroll{{overflow-x:auto}}footer{{margin:36px 0;border-top:1px solid #b9cbc6;padding-top:20px;font-size:14px}}
 @media print{{body{{background:white}} main{{margin:0;max-width:none}} article{{break-inside:avoid}}}}
 </style><main><header><small>经管研究助手 · 已核对的运行结果</small><h1>分析结果与证据</h1>
-<p>{esc(content['question'])}</p><p class="muted">运行前判断：{esc(content['judgment'])}</p></header>
+<p>{esc(content['question'])}</p><p class="muted">运行前判断：{esc(content['judgment'])}</p>
+<p class="muted">正式执行：{esc(content.get('backend', 'python'))} · 独立复核：Python 独立参考算法</p></header>
 <section class="cards"><div class="card">分析观测<span class="number">{sample['final_rows']}</span></div>
 <div class="card">研究主体<span class="number">{sample['entities']}</span></div>
 <div class="card">控制变量带来的额外样本损失<span class="number">{sample['control_additional_loss']}</span></div></section>
@@ -117,6 +119,7 @@ def write_result_report(workspace, report_id, run_id):
                              interval_interpretation=describe_interval(parameter['ci_low'], parameter['ci_high']),
                              source_field=f'{data["package"]}/outputs/result.json:parameters[{index}]'))
     content = dict(run_id=run_id, run_version=run['version'], plan_id=data['plan_id'], plan_version=data['plan_version'],
+                   backend=data.get('backend', 'python'), replication_of=data.get('replication_of'),
                    question=plan['question'], judgment=plan['judgment'], boundary=plan['boundary'],
                    purpose=plan['purpose'], scope='描述统计或条件关联', evidence=evidence,
                    descriptive=result['descriptive'], sample=data['sample'],

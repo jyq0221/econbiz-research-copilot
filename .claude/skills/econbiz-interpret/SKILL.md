@@ -14,6 +14,7 @@ description: Use when the user asks to explain regression results, compare findi
 
 先用 [判断—结果表](assets/judgment-results.md) 连接事前判断、实际证据和解释范围，再写结果段落。用单位和具体比较帮助理解；不同设定同时改变样本时不能全归因于控制变量。
 本项目正式结果先 project.require_usable，再按 [正式分析](../../../docs/research-handbook/analysis-execution.md) 用 write_result_report 生成可追溯表格和解释。需要 completed/passed 的实际运行及独立核验；数值核验不认证因果假设，报告文件本身也不保证仍为当前版本。
+项目脚本的真实输出可以按 [项目分析工作流](../../../docs/research-handbook/project-analysis.md) 讨论，并明确“已执行、尚未独立数值复核”；读 script_run 的文件、日志与实际样本，不能把这类输出写成内置已复核结果。分别说明执行检查、处理核对和统计复核；任何脚本自报 passed 都不是独立数值认证。
 需来源时读 [evidence](../econbiz-evidence/SKILL.md)，需核实计算时读 [analysis](../econbiz-analysis/SKILL.md)。后续新问题交 [design](../econbiz-design/SKILL.md) 保存为结果后探索，不为显著性遍历设定。
 
 ## 检查与收尾

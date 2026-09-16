@@ -162,7 +162,7 @@ class Project:
         for ref in files:
             validate_reference(ref)
 
-    def _prepare_dependencies(self, artifact_id, dependencies):
+    def _prepare_dependencies(self, artifact_id, dependencies, *, script_source=False):
         if not isinstance(dependencies, (list, tuple, dict)):
             raise WorkflowError('依赖必须是标识列表')
         deps = {}
@@ -172,7 +172,10 @@ class Project:
             require_text(dep, '依赖标识')
             if dep in deps or reaches(dep):
                 raise WorkflowError('依赖重复、自引用或存在循环')
-            self.require_usable(dep)
+            if script_source and self._get(dep)['kind'] == 'script_run':
+                self.require_executed_script(dep)
+            else:
+                self.require_usable(dep)
             deps[dep] = self._get(dep)['version']
         return deps
 
@@ -186,7 +189,8 @@ class Project:
             raise WorkflowError('产物内容必须是字典')
         files = json_copy(list(files))
         self._validate_files(files)
-        deps = self._prepare_dependencies(artifact_id, dependencies)
+        deps = self._prepare_dependencies(artifact_id, dependencies,
+                                          script_source=kind == 'source' and 'script_run' in content)
         if kind == 'plan':
             from .research_history import prepare_plan_content
             content = prepare_plan_content(self, content)
@@ -205,10 +209,30 @@ class Project:
         validate_plan(content, inventories[0]['content']['columns'])
 
     def _check_dependencies(self, artifact_id):
-        for dep, version in self._get(artifact_id)['dependencies'].items():
+        artifact = self._get(artifact_id)
+        for dep, version in artifact['dependencies'].items():
             if self._get(dep)['version'] != version:
                 raise WorkflowError(f'{artifact_id} 依赖的 {dep} 版本已变更')
-            self.require_usable(dep)
+            if (artifact['kind'] == 'source' and artifact['content'].get('script_run') == dict(id=dep, version=version)
+                    and self._get(dep)['kind'] == 'script_run'):
+                self.require_executed_script(dep)
+            else:
+                self.require_usable(dep)
+
+    def require_executed_script(self, artifact_id):
+        """Only execution provenance; callers must not treat this as statistics."""
+        from .files import verify_file
+        artifact = self._get(artifact_id)
+        if (artifact['kind'] != 'script_run' or artifact['execution_status'] != 'completed'
+                or artifact['check_status'] != 'pending' or not artifact['content'].get('finished_at')
+                or artifact['content'].get('execution_status') != 'completed'
+                or artifact['content'].get('check_status') != 'pending'
+                or artifact['content'].get('statistical_verification') != 'not_performed'):
+            raise WorkflowError('项目脚本执行证据不完整或已失效')
+        for ref in artifact.get('files', []):
+            verify_file(self.base_dir, ref)
+        self._check_dependencies(artifact_id)
+        return self.artifact(artifact_id)
 
     def require_usable(self, artifact_id):
         if not hasattr(self, '_checking'):
@@ -224,6 +248,8 @@ class Project:
     def _require_usable(self, artifact_id):
         from .files import verify_file
         a = self._get(artifact_id)
+        if a['kind'] == 'script_run':
+            raise WorkflowError('项目脚本运行尚未独立统计复核；仅可检查执行来源')
         if a['execution_status'] != 'completed' or a['check_status'] != 'passed':
             raise WorkflowError(f'{artifact_id} 尚未完成并通过检查，不能继续消费')
         for ref in a.get('files', []):
@@ -280,7 +306,8 @@ class Project:
             raise WorkflowError('内容必须是字典')
         refs = json_copy(a.get('files', []) if files is None else list(files))
         self._validate_files(refs)
-        deps = self._prepare_dependencies(artifact_id, a['dependencies'] if dependencies is None else dependencies)
+        deps = self._prepare_dependencies(artifact_id, a['dependencies'] if dependencies is None else dependencies,
+                                          script_source=a['kind'] == 'source' and 'script_run' in content)
         if a['kind'] == 'plan':
             from .research_history import prepare_plan_content
             if content != a['content'] or deps != a['dependencies']:
@@ -299,6 +326,12 @@ class Project:
         a = self._get(artifact_id)
         if a['execution_status'] == 'stale' or a['check_status'] == 'stale':
             raise WorkflowError('过期产物必须显式修订并重新检查，不能通过切换状态恢复')
+        if a['kind'] == 'script_run':
+            if check_status == 'passed' or execution_status == 'completed':
+                raise WorkflowError('项目脚本完成状态只能由实际运行收尾登记，不能手动升级或认证')
+            if execution_status == 'running' and (a['execution_status'] != 'pending'
+                    or a['content'].get('finished_at') or check_status != 'pending'):
+                raise WorkflowError('已开始或结束的项目脚本须用新运行标识重跑')
         if execution_status in {'running', 'completed'}:
             self._check_dependencies(artifact_id)
         if a['kind'] == 'result' and (execution_status == 'completed' or a['execution_status'] == 'completed'):
@@ -309,6 +342,16 @@ class Project:
             self._invalidate(artifact_id, reason)
 
     def finish_result(self, artifact_id, content, files, execution_status, check_status, reason):
+        return self._finish_attempt(artifact_id, content, files, execution_status, check_status,
+                                    reason, kind='result')
+
+    def finish_script_run(self, artifact_id, content, files, execution_status, reason):
+        """Execution evidence never certifies a custom script's statistics."""
+        return self._finish_attempt(artifact_id, content, files, execution_status,
+                                    'pending' if execution_status == 'completed' else 'failed',
+                                    reason, kind='script_run')
+
+    def _finish_attempt(self, artifact_id, content, files, execution_status, check_status, reason, *, kind):
         """Finalize a running attempt, retaining frozen dependencies even on failure.
 
         Unlike a research revision, finalizing failure evidence cannot require its
@@ -316,10 +359,11 @@ class Project:
         """
         require_text(reason, '收尾依据')
         a = self._get(artifact_id)
-        if (a['kind'] != 'result' or a['execution_status'] not in {'running', 'stale'}
+        if (a['kind'] != kind or a['execution_status'] not in {'running', 'stale'}
                 or a['content'].get('finished_at')):
             raise WorkflowError('仅可收尾未结束的正式运行；重跑须用新标识')
-        if execution_status not in {'completed', 'failed'} or check_status not in {'passed', 'failed'}:
+        allowed_checks = {'pending', 'failed'} if kind == 'script_run' else {'passed', 'failed'}
+        if execution_status not in {'completed', 'failed'} or check_status not in allowed_checks:
             raise WorkflowError('运行收尾必须明确完成/失败及检查结果')
         if execution_status == 'failed' and check_status == 'passed':
             raise WorkflowError('失败运行不能标为核验通过')
@@ -340,7 +384,7 @@ class Project:
         a.update(version=a['version'] + 1, content=content, files=refs,
                  execution_status=execution_status, check_status=check_status,
                  has_completed_result=bool(content.get('result')))
-        self._event('result_finalized', artifact_id, reason)
+        self._event(kind + '_finalized', artifact_id, reason)
         self._invalidate(artifact_id, '运行已收尾，请消费明确的最终版本')
         return self.artifact(artifact_id)
 
@@ -356,7 +400,8 @@ class Project:
         inventory = [self._get(dep) for dep in a['dependencies'] if self._get(dep)['kind'] == 'inventory']
         if len(inventory) != 1:
             raise WorkflowError('方案必须绑定一个数据盘点版本')
-        validate_plan(a['content'], inventory[0]['content']['columns'], require_supported=True)
+        validate_plan(a['content'], inventory[0]['content']['columns'],
+                      require_supported=a['content'].get('execution_route') != 'project_script')
         if a['check_status'] in {'failed', 'stale'}:
             raise WorkflowError('检查失败的方案不能确认')
         evidence_path = Path(evidence)
@@ -395,6 +440,12 @@ class Project:
         for key in list(project._state['artifacts']):
             if project._get(key)['execution_status'] == 'running':
                 project._get(key).update(execution_status='failed', check_status='pending')
+                if project._get(key)['kind'] == 'script_run':
+                    a = project._get(key)
+                    a['check_status'] = 'failed'
+                    a['content'].update(finished_at=now(), execution_status='failed', check_status='failed',
+                        error='上次宿主中断，保留运行目录及部分文件；须使用新标识重跑',
+                        result_output_present=not a['content'].get('preparation_only', False))
                 project._event('interrupted', key, '上次执行中断；保留证据，需显式重跑')
                 project._invalidate(key, '上游执行中断')
         return project

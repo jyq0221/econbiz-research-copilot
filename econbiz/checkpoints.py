@@ -100,7 +100,10 @@ def restore_record(workspace, artifact_id, version, reason):
             if hashlib.sha256(raw).hexdigest() != content['input_sha256']:
                 raise WorkflowError('旧盘点来源改变')
     for dep, expected in old['dependencies'].items():
-        current = workspace.project.require_usable(dep)
+        if old['kind'] == 'source' and old['content'].get('script_run') == dict(id=dep, version=expected):
+            current = workspace.project.require_executed_script(dep)
+        else:
+            current = workspace.project.require_usable(dep)
         if current['version'] != expected:
             raise WorkflowError(f'旧版依赖 {dep} v{expected} 与当前 v{current["version"]} 不符；需重选输入')
     if old['kind'] == 'plan':
