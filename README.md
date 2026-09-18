@@ -174,3 +174,7 @@ GitHub 反馈会公开；不便公开的材料只需描述现象，无需贴出�
 - [设计与制作标准](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/design-and-development-standard.md)：项目目标与后续分析范围。
 
 维护源码、开发测试和实施记录集中保存在 [开发分支](https://github.com/jyq0221/econbiz-research-copilot/tree/codex/framework-foundation)，供参与开发时查阅。
+
+## LaTeX 和 PDF 结果交付
+
+可以直接说：“把现有回归结果导出为 LaTeX 和 PDF，附上结果说明与模型公式。”支持单模型和多模型表格，保留已核验数值、来源与版本；PDF 需要可用的 XeLaTeX 环境，编译和逐页版式检查分别记录。当前支持范围与配置见 [LaTeX 交付手册](docs/research-handbook/latex-delivery.md)。

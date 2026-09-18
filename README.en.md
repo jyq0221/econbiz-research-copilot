@@ -176,3 +176,7 @@ The following documentation is currently in Chinese:
 - [Design and development standards](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/design-and-development-standard.md): Project goals and the broader analysis roadmap.
 
 Source maintenance, development tests, and implementation records live on the [development branch](https://github.com/jyq0221/econbiz-research-copilot/tree/codex/framework-foundation).
+
+## LaTeX and PDF result delivery
+
+Ask the agent to export existing regression results, explanations and model equations to LaTeX and PDF. Single-model and multi-model tables retain checked values and source versions. PDF generation requires XeLaTeX; compilation and page-by-page visual review have separate statuses. See the [LaTeX delivery guide](docs/research-handbook/latex-delivery.md) (Chinese) for supported inputs and setup.
