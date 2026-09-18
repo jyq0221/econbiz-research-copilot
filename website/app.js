@@ -1,8 +1,8 @@
 (() => {
   'use strict';
   const previews = {
-    analysis: { image: 'assets/analysis-report.png', title: '分析结果与证据 · 合成数据示例', alt: '项目实际运行生成的分析报告：72 个合成观测、12 个主体及固定效应回归结果', description: '实际执行的 Python 分析 · 独立数值复核通过', source: 'examples/analysis-report.html', link: '打开完整报告' },
-    routes: { image: 'assets/research-routes.png', title: '研究路线对照 · 合成数据示例', alt: '项目生成的研究路线对照报告，展示数据覆盖及两条候选路线', description: '真实生成的研究路线对照 · 讨论草案', source: 'examples/research-routes.html', link: '打开完整报告' },
+    analysis: { image: 'assets/analysis-report-macos.jpg', title: '分析结果 · 报告展示版', alt: '分析结果展示版：72 个合成观测、12 个主体及系数区间图', description: '实际执行的 Python 分析 · 独立数值复核通过', source: 'examples/analysis-report.html', link: '查看原始报告' },
+    routes: { image: 'assets/research-routes-macos.jpg', title: '研究路线 · 报告展示版', alt: '研究路线展示版：数据概览及两条候选路线', description: '基于实际报告重排 · 讨论草案', source: 'examples/research-routes.html', link: '查看原始报告' },
     report: { image: 'assets/latex-report.png', title: 'LaTeX 结果导出 · 合成数据示例', alt: '实际 PDF 报告页面，包含多模型三线表、变量定义与同样本描述统计', description: '实际生成的 PDF · 三模型排版示例', source: 'examples/latex-report.pdf', link: '打开原始 PDF' }
   };
   const tabs = [...document.querySelectorAll('[data-preview]')];
@@ -21,8 +21,8 @@
     panel.setAttribute('aria-labelledby', tab.id);
     screenshot.src = preview.image;
     screenshot.alt = preview.alt;
-    screenshot.width = activePreview === 'report' ? 834 : 1280;
-    screenshot.height = activePreview === 'report' ? 1179 : 720;
+    screenshot.width = activePreview === 'report' ? 834 : 960;
+    screenshot.height = activePreview === 'report' ? 1179 : 600;
     imageButton.classList.toggle('paper', activePreview === 'report');
     imageButton.setAttribute('aria-label', `放大${preview.title}`);
     description.replaceChildren();
