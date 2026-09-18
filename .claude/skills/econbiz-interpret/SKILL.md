@@ -21,5 +21,7 @@ description: Use when the user asks to explain regression results, compare findi
 
 多模型比较、基准/稳健性并列表和 Word 交付先读 [结果交付手册](../../../docs/research-handbook/result-delivery.md)。沿用实际模型角色与顺序，按变量定义对齐，核对真实样本键；整理现有结果不重跑分析。使用 write_model_comparison / write_word_report 保存版本，DOCX 内容核对、实际渲染与逐页视觉检查分别记录。缺少渲染不能宣称版式通过；未核验脚本不混入正式比较列。新会话用 read_model_comparison / read_word_report 核对有效材料。
 
+LaTeX、公式或 PDF 交付先读 [LaTeX 结果交付](../../../docs/research-handbook/latex-delivery.md)。单个已核验运行用 run_id，已有比较用 comparison_id；用 write_latex_report 保存源文件，compile_latex_report 实际编译。公式须绑定真实方案或笔记，说明中的数字先核对。源码、编译与逐页视觉状态分别记录；缺引擎保留源码及失败原因，不能声称 PDF 已生成。接续时调用对应的 read_latex_report / read_latex_build / read_latex_review。
+
 核对数值、方向、样本、单位和来源；系数、标准误、区间本身不能证明因果。保留合理设定及全部结果。
 工作记录与成稿分开，待办和占位不混入结果文字，不自动扩展为整篇论文。按 [工具契约](../../../docs/research-handbook/tool-contracts.md) 保存外部来源、带出处的 session_note 和真实输出，说明核对到哪一步及下一步理由。
