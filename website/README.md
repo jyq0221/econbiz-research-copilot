@@ -4,6 +4,8 @@
 
 深色视觉参考 [Dark.Design](https://www.dark.design/)，交互灵感参考 [React Bits](https://reactbits.dev/) 和 [21st.dev](https://21st.dev/)。动效由本项目的 CSS 和原生 JavaScript 实现，无额外框架依赖。
 
+研究路线和分析结果的预览参考 Codex 与 macOS 的简洁窗口、侧栏和信息层级，以实际报告内容重新排版。它们是报告展示版，不是独立桌面应用；保留原始 HTML 报告入口。分析结果中的系数区间图对应原报告的点估计和 95% 置信区间，数据均为合成示例。
+
 ## 查看
 
 在线访问：[经管研究 Copilot](https://econbiz-research-copilot.pages.dev/)。
@@ -21,9 +23,11 @@ python3 -m http.server 8765 --bind 127.0.0.1 --directory website
 - `index.html`：内容、导航、预览、使用说明与常见问题。
 - `styles.css`：桌面和手机排版。
 - `theme.css`：深色主题、背景光晕、文字渐变、滚动渐入和卡片视觉效果。
+- `showcase.css`：报告预览的简洁边框、完整图片比例与响应式卡片布局。
 - `app.js`：预览切换、图片放大、手机导航与提示词复制。
 - `motion.js`：动效开关、滚动进度、导航定位与鼠标聚光交互。
-- `assets/`：两张实际 HTML 报告的浏览器截图、一张实际 PDF 页面。
+- `assets/`：两张 `*-macos.jpg` 报告展示版截图、原始 HTML 报告截图和实际 PDF 页面。
+- `previews/`：展示版 HTML 与共用样式；两张新版图片由浏览器在 960 × 600 视口直接截取。
 - `examples/`：完整可打开的 HTML 报告和 PDF 示例。
 
 更新内容时以当前 README、实际功能和有效手册为准。示例为合成数据，不属于真实企业研究；不得把文件结构示意写成已实现的独立研究网页应用。图片来源与哈希保存在仓库的 `docs/website-assets-20260918.json`。

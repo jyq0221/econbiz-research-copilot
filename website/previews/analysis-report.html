@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>分析结果 · 报告展示版</title><link rel="stylesheet" href="report-ui.css"></head><body>
+<div class="window">
+  <aside class="sidebar" aria-label="报告导航">
+    <div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="app-brand"><svg viewBox="0 0 24 24"><path d="M4 5h6l2 2 2-2h6v15h-6l-2 2-2-2H4zM12 7v15"/></svg>经管研究 Copilot</div>
+    <p class="sidebar-label">研究空间</p>
+    <a class="nav-item" href="research-routes.html"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 10h16M10 10v9"/></svg>研究路线</a>
+    <a class="nav-item" href="analysis-report.html" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 4v16h16M8 14l4-4 4 2 4-7"/></svg>分析结果</a>
+    <a class="nav-item" href="../examples/latex-report.pdf"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 5v13H6zM14 3v6h4M9 13h6M9 17h6"/></svg>论文报告</a>
+    <p class="sidebar-label">当前项目</p><div class="project"><i class="project-dot"></i>合成面板示例</div>
+    <div class="sidebar-bottom"><span class="status-dot"></span>本地文件 · 按项目整理<br>展示版 / 合成数据</div>
+  </aside>
+  <main class="workspace"><header class="toolbar"><div class="breadcrumb">合成面板示例 <span>/</span> 分析结果</div><a href="../examples/analysis-report.html">原始报告 <svg viewBox="0 0 24 24"><path d="M6 18 18 6M6 6h12v12"/></svg></a></header>
+    <div class="content"><div class="topline"><p class="eyebrow">ANALYSIS RESULTS</p><span class="status verified">✓ 数值复核通过</span></div><h1>从一份数据，走到有据的结果。</h1><p class="subtitle">Python 实际执行 · 企业与年度固定效应 · 聚类标准误</p>
+    <section class="overview" aria-label="分析样本"><div class="metric"><strong>72</strong><span>分析观测</span></div><div class="metric"><strong>12</strong><span>研究主体</span></div><div class="metric"><strong>0</strong><span>控制变量额外样本损失</span></div></section>
+    <section class="chart-panel"><div class="chart-heading"><h2>系数与不确定性</h2><span>点估计 · 95% 置信区间</span></div>
+      <svg class="coefficient-chart" viewBox="0 0 720 155" role="img" aria-label="x 系数 1.13415，95% 区间 0.931864 至 1.33644；c 系数 0.455336，95% 区间 0.078341 至 0.832331。均为合成示例的条件关联。">
+        <path class="grid" d="M266.667 15v103M453.333 15v103M640 15v103"/><path class="zero" d="M80 15v103"/>
+        <text class="variable" x="22" y="44">x</text><text class="variable" x="22" y="93">c</text>
+        <path class="interval" d="M427.896 39H578.938M427.896 33v12M578.938 33v12"/><circle class="point" cx="503.416" cy="39" r="6"/><text class="value" x="663" y="43">1.134</text>
+        <path class="interval secondary" d="M109.247 88H390.737M109.247 82v12M390.737 82v12"/><circle class="point secondary" cx="249.992" cy="88" r="6"/><text class="value" x="663" y="92">0.455</text>
+        <text x="80" y="143" text-anchor="middle">0</text><text x="266.667" y="143" text-anchor="middle">0.5</text><text x="453.333" y="143" text-anchor="middle">1.0</text><text x="640" y="143" text-anchor="middle">1.5</text>
+      </svg>
+    </section><p class="result-note"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg><strong>结果可追溯</strong> · 样本、模型设定与关键数值均已核对</p>
+    <p class="bottom-note">合成数据演示 · 仅描述条件关联，不作因果解释。</p>
+    </div>
+  </main>
+</div><p class="document-footnote">基于真实运行结果重新排版的报告展示版。运行 site-demo-run；方案 p1 v1。原始完整精度、标准误、p 值与描述统计见原始报告。</p>
+</body></html>
