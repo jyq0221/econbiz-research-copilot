@@ -117,9 +117,13 @@ Open the repository root when resuming. If different assistants take turns on th
 
 ## What is implemented?
 
-**Research preparation, the first formal analysis tools, and model comparison and Word delivery are connected.** The workflow supports Excel/CSV input, descriptive statistics, fixed-effects regressions, independent numerical checks, result reports, versioning, and resumption. Python is the default; Stata is optional.
+**Research preparation, the first formal analysis tools, and Word, LaTeX and PDF result delivery are connected.** The workflow supports Excel/CSV input, descriptive statistics, fixed-effects regressions, independent numerical checks, result reports, versioning, and resumption. Python is the default; Stata is optional.
 
 Version 0.3.0a1 adds ordered comparisons of checked models, actual sample comparisons, and editable Word tables with three horizontal rules. Reports include variable definitions, descriptive statistics for each model's sample, and source versions. File generation, numeric/text checks, and page-by-page visual review are recorded separately. See [model comparison and Word delivery](docs/research-handbook/result-delivery.md) (Chinese). These features are included in the default main branch and ZIP. The built-in Word template is currently Chinese.
+
+### LaTeX and PDF result delivery
+
+Version 0.3.0a2 adds LaTeX source export and PDF generation, included in the default main branch and ZIP. Ask the agent to export existing regression results, explanations and model equations to LaTeX and PDF. Single-model and multi-model tables retain checked values and source versions. PDF generation requires XeLaTeX; compilation and page-by-page visual review have separate statuses. See the [LaTeX delivery guide](docs/research-handbook/latex-delivery.md) (Chinese) for supported inputs and setup.
 
 ### Can it actually run regressions?
 
@@ -176,7 +180,3 @@ The following documentation is currently in Chinese:
 - [Design and development standards](https://github.com/jyq0221/econbiz-research-copilot/blob/codex/framework-foundation/docs/design-and-development-standard.md): Project goals and the broader analysis roadmap.
 
 Source maintenance, development tests, and implementation records live on the [development branch](https://github.com/jyq0221/econbiz-research-copilot/tree/codex/framework-foundation).
-
-## LaTeX and PDF result delivery
-
-Ask the agent to export existing regression results, explanations and model equations to LaTeX and PDF. Single-model and multi-model tables retain checked values and source versions. PDF generation requires XeLaTeX; compilation and page-by-page visual review have separate statuses. See the [LaTeX delivery guide](docs/research-handbook/latex-delivery.md) (Chinese) for supported inputs and setup.
