@@ -1,0 +1,25 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>分析结果与证据</title><style>
+body{margin:0;background:#f4f5f1;color:#1d3333;font:16px/1.75 system-ui,-apple-system,sans-serif}
+main{max-width:1050px;margin:40px auto;padding:0 28px}header{border-top:5px solid #246a62;padding:22px 0}
+h1{font-size:34px;margin:10px 0}h2{margin-top:38px;font-size:23px}small,.muted{color:#556a69}
+.cards{display:flex;gap:16px;flex-wrap:wrap}.card,article{background:white;border:1px solid #dce4df;border-radius:10px;padding:18px 22px}
+.card{flex:1;min-width:170px}.number{display:block;font-size:30px;font-weight:650}article{margin:12px 0}
+table{width:100%;border-collapse:collapse;background:white;font-variant-numeric:tabular-nums}th,td{padding:12px;text-align:right;border-bottom:1px solid #e0e5e1}
+th:first-child,td:first-child{text-align:left}th{border-top:2px solid #246a62;border-bottom:1px solid #246a62}tr:last-child td{border-bottom:2px solid #246a62}
+.scroll{overflow-x:auto}footer{margin:36px 0;border-top:1px solid #b9cbc6;padding-top:20px;font-size:14px}
+@media print{body{background:white} main{margin:0;max-width:none} article{break-inside:avoid}}
+</style><main><header><small>经管研究助手 · 已核对的运行结果</small><h1>分析结果与证据</h1>
+<p>合成指标 x 与 y 的条件关联</p><p class="muted">运行前判断：非定向探索</p>
+<p class="muted">正式执行：python · 独立复核：Python 独立参考算法</p></header>
+<section class="cards"><div class="card">分析观测<span class="number">72</span></div>
+<div class="card">研究主体<span class="number">12</span></div>
+<div class="card">控制变量带来的额外样本损失<span class="number">0</span></div></section>
+<h2>回归结果</h2><p>固定效应：firm、year；标准误：cluster。</p>
+<div class="scroll"><table><thead><tr><th>变量</th><th>系数</th><th>标准误</th><th>p 值</th><th>95% 下限</th><th>95% 上限</th></tr></thead><tbody><tr><td>x</td><td>1.13415</td><td>0.0919071</td><td>8.72321e-08</td><td>0.931864</td><td>1.33644</td></tr><tr><td>c</td><td>0.455336</td><td>0.171285</td><td>0.0222518</td><td>0.078341</td><td>0.832331</td></tr></tbody></table></div>
+<h2>判断与证据</h2><article><h3>x</h3><p>在本模型的其他变量与固定效应条件下，x 每增加 1 个记录单位（指数），因变量的条件关联变化为 1.13415（比例）。</p><p>95% 区间位于零的同一侧，支持该设定下的正向条件关联；其实际意义仍需结合变量单位与研究背景。</p><small>research/runs/site-demo-run/outputs/result.json:parameters[0]</small></article><article><h3>c</h3><p>在本模型的其他变量与固定效应条件下，c 每增加 1 个记录单位（未提供，需结合变量说明），因变量的条件关联变化为 0.455336（比例）。</p><p>95% 区间位于零的同一侧，支持该设定下的正向条件关联；其实际意义仍需结合变量单位与研究背景。</p><small>research/runs/site-demo-run/outputs/result.json:parameters[1]</small></article>
+<h2>描述统计 · 同一分析样本</h2><div class="scroll"><table><thead><tr><th>字段</th><th>N</th><th>均值</th><th>标准差</th><th>最小值</th><th>中位数</th><th>最大值</th></tr></thead><tbody><tr><td>x</td><td>72</td><td>1.20556</td><td>0.677171</td><td>0</td><td>1.3</td><td>2.2</td></tr><tr><td>c</td><td>72</td><td>0.795833</td><td>0.495739</td><td>0</td><td>0.8</td><td>1.6</td></tr><tr><td>y</td><td>72</td><td>4.18893</td><td>1.52624</td><td>1.46773</td><td>4.32073</td><td>6.9911</td></tr></tbody></table></div>
+<h2>检查范围与下一步</h2><p>独立数值核验通过。核对范围包括样本、模型设定和关键数值；推断条件与因果识别仍需结合研究设计判断。</p>
+<p>仅条件关联</p><ul></ul><p>下一步：评估变量含义、比较对象、区间精度和原判断；改变设定时记录理由并确认新版本。</p>
+<footer>方案 p1 v1 · 运行 site-demo-run<br>
+生成时的版本快照。继续使用前通过项目接口检查结果是否仍有效。</footer></main></html>
