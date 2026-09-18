@@ -86,3 +86,9 @@ git clone --branch codex/framework-foundation --single-branch https://github.com
 开发安装 `python3 -m pip install -e '.[analysis,documents,document-review]'`。基础包仍无第三方依赖；Word 生成与视觉证据登记分别按需导入。python-docx 1.2.0（MIT）兼容 Python 3.9；pypdf 6.10.2 与 Pillow 11.3.0 用于 PDF 页数和 PNG 结构检查，均兼容 Python 3.9。实际渲染由宿主文档工具提供，不内置开发机器的路径。
 
 接续和进展显示对比较、Word、版式记录调用严格读取器，核对登记字节及上游内容。该检查可能重新计算独立统计参考值，不创建新的主估计运行。没有可选统计/文档依赖时，基础项目可读，交付标为需要核对，不沿用未检查的有效状态。
+
+## LaTeX 与 PDF 交付
+
+版本 0.3.0a2 在既有已核验结果之上提供 LaTeX 源文件、原生 XeLaTeX 编译及独立的逐页观察记录，源码生成不重新估计。接口见 [LaTeX 交付手册](research-handbook/latex-delivery.md)，完整实现验收见 [LaTeX 验收](latex-validation.md)，公开 main 与 ZIP 实下载检查见 [发布检查](latex-release.md)。
+
+安装所需 Python 依赖使用 `python3 -m pip install -e ".[analysis,latex]"`；XeLaTeX 及宏包由宿主另外配置。原生编译测试通过 `ECONBIZ_TEST_XELATEX` 提供可执行文件路径，未设置时不能称为原生 PDF 测试通过。
