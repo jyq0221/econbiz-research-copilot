@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>研究路线对照 · 经管实证研究助手</title>
+<style>
+:root { color-scheme: light; --ink:#183734; --muted:#556b66; --line:#d6e0da; --paper:#f5f4ee; --accent:#1a685b; }
+* { box-sizing:border-box; } body { margin:0;background:var(--paper);color:var(--ink);font:16px/1.8 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+main { max-width:1120px;margin:auto;padding:44px 32px 64px; } header { border-top:4px solid var(--accent);padding-top:22px; }
+.eyebrow { font-size:13px;color:var(--accent);font-weight:650;letter-spacing:.08em; } h1 { font-size:38px;line-height:1.3;margin:12px 0 16px; }
+h2 { font-size:24px;margin:32px 0 16px; } h3 { font-size:21px;line-height:1.55;margin:10px 0 16px; } p { margin:10px 0; }
+.direction { font-size:19px;max-width:850px;overflow-wrap:anywhere; } .muted,footer { color:var(--muted);font-size:14px; }
+.next { border-left:4px solid var(--accent);background:#e8eee7;padding:18px 24px;margin:26px 0; }
+.facts { display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px; }
+.fact { background:white;border:1px solid var(--line);padding:18px 22px; } .fact strong { display:block;font-size:32px;line-height:1.4; } .fact span { font-size:14px;color:var(--muted); }
+.plans { display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;align-items:start; }
+.plan { background:white;padding:26px;border:1px solid var(--line);border-radius:4px;overflow-wrap:anywhere; }
+.tag { display:inline-block;font-size:12px;border:1px solid #d1b873;background:#fbf5e4;padding:2px 9px;color:#66511e; }
+dl { margin:22px 0 0; } dt { font-weight:650;font-size:14px;margin-top:17px; } dd { margin:5px 0 0;color:#3e5550;font-size:15px; }
+.relation { border-top:1px solid var(--line);padding-top:14px;margin-top:22px;font-size:14px;color:var(--muted); }
+.empty { border:1px dashed var(--line);padding:18px 24px; } .questions { background:white;border:1px solid var(--line);padding:4px 22px 12px; }
+li { margin:10px 0;overflow-wrap:anywhere; } footer { margin-top:32px;border-top:1px solid var(--line);padding-top:18px;overflow-wrap:anywhere; }
+@media(max-width:600px) { main { padding:24px 18px; } h1 { font-size:30px; } .plans { grid-template-columns:1fr; } .plan { padding:20px; } }
+@media print { body { background:white; } main { padding:0; } .plans { display:block; } .plan { break-inside:avoid;margin-bottom:18px; } }
+</style></head><body><main>
+<header><div class="eyebrow">经管实证研究助手 / 研究准备</div><h1>可先讨论的路线</h1>
+<p class="direction">合成面板运行验收</p><p class="muted">当前目标：了解条件关联 · 共 2 条讨论路线</p></header>
+<section class="next"><strong>建议先做什么</strong><p>先用描述路线理解数据；若要回答两个指标的关联问题，再核对关联路线的测量、控制条件和推断方式。</p></section>
+<section aria-label="数据覆盖"><h2>先看看手上的数据</h2><div class="facts"><div class="fact"><strong>72</strong><span>原始企业年度观测</span></div><div class="fact"><strong>72</strong><span>关注指标可用观测</span></div><div class="fact"><strong>72</strong><span>两指标共同可用观测</span></div></div>
+<p class="muted">这里是数据覆盖计数，还不是回归结果。缺失标记保留，不自动填零。</p></section>
+<section><h2>每条路线回答什么问题</h2><div class="plans"><article class="plan"><div class="eyebrow">路线 1 · 描述现象</div><h3>合成结果指标在现有企业与年份中呈现什么分布和变化？</h3><span class="tag">讨论草案 · 尚未确认</span><p class="muted">结果之前记录的讨论草案</p><dl><dt>对应数据</dt><dd>合成结果指标 → y（比例）</dd><dt>怎样比较</dt><dd>对现有企业年度观测进行分布与按年度汇总，不作因果比较</dd><dt>拟用样本</dt><dd>原始 72 行；关注指标可用 72 行，缺失 0 行。拟按指标可用观测描述，待确认样本规则。</dd><dt>为什么考虑</dt><dd>关注指标已有核实映射，可先了解数据覆盖和基本分布</dd><dt>仍需核实</dt><dd>确认指标定义和时间口径；若比较年度，需核对各年企业构成是否变化。</dd><dt>能说明到哪里</dt><dd>仅描述现有样本；只用于教学，不对应真实企业概念</dd></dl><p class="relation">独立的描述问题；不作为关联结果的稳健性检验</p></article><article class="plan"><div class="eyebrow">路线 2 · 了解条件关联</div><h3>合成解释指标与合成结果指标在企业内跨期变化中有何条件关联？</h3><span class="tag">讨论草案 · 尚未确认</span><p class="muted">结果之前记录的讨论草案</p><dl><dt>对应数据</dt><dd>合成解释指标 → x（指数）；合成结果指标 → y（比例）</dd><dt>怎样比较</dt><dd>候选企业与年度固定效应，用企业内跨期变化比较条件关联；控制变量角色待论证</dd><dt>拟用样本</dt><dd>原始 72 行 → 关注指标可用 72 行 → 两指标共同可用 72 行；进一步因解释指标缺失减少 0 行。这是候选完整案例样本，尚未执行删除，需核对流失影响。</dd><dt>为什么考虑</dt><dd>两个指标映射已核实，共同样本具有基础覆盖；可进一步讨论原关联问题</dd><dt>仍需核实</dt><dd>已检查共同样本内的原始企业内变化；这不代表吸收企业和年度固定效应后仍有变化。估计前还需检查共线性、剩余变化、控制变量角色与推断条件。</dd><dt>能说明到哪里</dt><dd>仅条件关联，不作因果解释；只用于教学，不对应真实企业概念；只用于教学，不对应真实企业概念</dd></dl><p class="relation">与描述路线回答不同问题；不是替代测量或稳健性检验</p></article></div></section>
+<section><h2>接下来一起核实</h2><div class="questions"><ul><li>关联草案尚需讨论理论依据、控制变量角色和标准误；不要把结构检查通过当作研究设计已验证。</li></ul></div></section>
+<section><h2>这份报告的范围</h2><ul><li>当前为固定规则生成的讨论草案，未检索文献、未执行估计。</li><li>指标含义由研究者提供；程序不能认证测量有效性。</li><li>描述路线回答缩小后的问题，不能替代原来关于两个指标关联的问题。</li></ul></section>
+<footer><p>这是生成时的快照；修改数据或字段含义后，请重新生成，并从项目状态核实是否仍有效。</p>
+<p>生成时间：2026-09-18T05:29:25.092970+00:00 · 数据盘点第 1 版 · 记录：未保存</p>
+<p>草案未代表研究者确认，报告不包含已执行的统计估计。</p></footer>
+</main></body></html>

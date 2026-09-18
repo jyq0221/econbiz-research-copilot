@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN" data-motion="paused">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="经管研究 Copilot：从研究问题、文献与数据，到 Python / Stata 分析、结果解释与 Word、LaTeX、PDF 交付。在你熟悉的 AI Agent 中，让每一步研究积累接得上。">
+  <meta name="theme-color" content="#080b14">
+  <title>经管研究 Copilot — 让每一步研究积累接得上</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%235751df'/%3E%3Cpath d='M10 11h9c4 0 7 3 7 7v11h-8c-4 0-8-3-8-7z' fill='none' stroke='white' stroke-width='2.5'/%3E%3Cpath d='M17 16h13M17 21h10' stroke='white' stroke-width='2.5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="theme.css">
+  <script src="app.js" defer></script>
+  <script src="motion.js" defer></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6c-3-2-6-2-10-1v15c4-1 7-1 10 1 3-2 6-2 10-1V5c-4-1-7-1-10 1zm0 0v15"/></symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6z"/></symbol>
+    <symbol id="i-data" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v7c0 4 16 4 16 0V5M4 12v7c0 4 16 4 16 0v-7"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 3v17h17M8 15l4-5 4 2 5-7"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 11a9 9 0 0 1-9 9H4l-3 2 2-7a9 9 0 1 1 18-4Z"/><path d="M8 8h8M8 12h5"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6m3-3v6l4 2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4 1-4-2-6-2m12 5v-4c0-1-.3-2-1-2 4-.4 7-2 7-6 0-2-1-3-2-4 .2-1 .2-3-1-4-2 0-3 1-4 2a14 14 0 0 0-4 0C9 3 8 2 6 2 5 3 5 5 5 6c-1 1-2 2-2 4 0 4 3 6 7 6-1 0-1 1-1 2v4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H5v20h14V7zm0 0v6h5M8 12h8M8 16h6"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  </svg>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <header class="site-header">
+    <div class="reading-progress" aria-hidden="true"></div>
+    <div class="nav-wrap">
+      <a class="brand" href="#" aria-label="经管研究 Copilot 首页"><span class="brand-mark"><svg><use href="#i-book"/></svg></span><span>经管研究 <b>Copilot</b></span></a>
+      <button class="menu-toggle" aria-label="打开导航" aria-expanded="false" aria-controls="navigation"><span></span><span></span></button>
+      <nav id="navigation" aria-label="主导航">
+        <a href="#workflow">研究流程</a><a href="#showcase">实机预览</a><a href="#start">使用指南</a><a href="#faq">常见问题</a>
+      </nav>
+      <a class="nav-github" href="https://github.com/jyq0221/econbiz-research-copilot" target="_blank" rel="noopener noreferrer" aria-label="在新窗口查看 GitHub 项目"><svg><use href="#i-github"/></svg></a>
+      <a class="button nav-cta" href="#start">开始试用 <svg><use href="#i-arrow"/></svg></a>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-orbit" aria-hidden="true"></div>
+      <div class="hero-copy container">
+        <a class="release-pill" href="https://github.com/jyq0221/econbiz-research-copilot/blob/main/docs/research-handbook/latex-delivery.md" target="_blank" rel="noopener noreferrer"><span>新版本</span> Word · LaTeX · PDF 结果交付 <svg><use href="#i-arrow"/></svg></a>
+        <h1 id="hero-title">让研究思路更清楚，<br><span>让每一步积累接得上。</span></h1>
+        <p class="hero-description">面向经管研究的 AI 工作伙伴。陪你理清问题、读懂文献、分析数据，<br class="desktop-break">也把方案、结果和修改理由留下来，让下次研究接着做。</p>
+        <div class="hero-actions"><a class="button button-primary" href="#start">开始你的研究 <svg><use href="#i-arrow"/></svg></a><a class="button button-secondary" href="#showcase"><svg><use href="#i-expand"/></svg> 看看实际效果</a></div>
+        <p class="hero-note">从一个想法开始，也可以带着已有项目继续。</p>
+      </div>
+      <div class="product-preview container">
+        <div class="preview-topline"><span class="preview-kicker">从项目中，真实生成</span><span class="preview-meta">合成数据演示 · v0.3.0a2</span></div>
+        <div class="preview-shell">
+          <div class="preview-toolbar">
+            <div class="window-controls" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="preview-tabs" role="tablist" aria-label="切换实际产物预览">
+              <button id="tab-analysis" role="tab" aria-selected="true" aria-controls="preview-panel" data-preview="analysis">分析结果</button>
+              <button id="tab-routes" role="tab" aria-selected="false" aria-controls="preview-panel" tabindex="-1" data-preview="routes">研究路线</button>
+              <button id="tab-report" role="tab" aria-selected="false" aria-controls="preview-panel" tabindex="-1" data-preview="report">论文表格</button>
+            </div>
+            <button class="icon-button preview-expand" aria-label="放大当前预览"><svg><use href="#i-expand"/></svg></button>
+          </div>
+          <div id="preview-panel" role="tabpanel" aria-labelledby="tab-analysis" tabindex="0">
+            <button class="preview-image-button" aria-label="放大分析结果截图"><img id="hero-screenshot" src="assets/analysis-report.png" width="1280" height="720" alt="项目实际运行生成的分析报告：72 个合成观测、12 个主体及固定效应回归结果" fetchpriority="high"></button>
+            <div class="preview-bottom"><span id="preview-description"><svg><use href="#i-check"/></svg> 实际执行的 Python 分析 · 独立数值复核通过</span><a id="preview-source" href="examples/analysis-report.html" target="_blank" rel="noopener noreferrer">打开完整报告 <svg><use href="#i-arrow"/></svg></a></div>
+          </div>
+        </div>
+        <p class="preview-footnote">以上为项目实际生成的报告截图。研究对话在你配置的 Agent 中进行，图中数据仅用于演示。</p>
+      </div>
+    </section>
+
+    <section class="environment container" aria-label="运行环境与分析方式">
+      <p>融入你熟悉的研究环境</p>
+      <div class="environment-names"><span class="platform"><svg><use href="#i-message"/></svg> Codex <small>主要实测</small></span><span class="platform">Claude Code <small>适配入口</small></span><span class="platform">其他 Agent <small>需核对兼容性</small></span><span class="environment-divider"></span><span class="platform engine">Python <small>默认分析</small></span><span class="platform engine">Stata <small>可选引擎</small></span></div>
+    </section>
+
+    <section id="workflow" class="section container">
+      <div class="section-heading"><p class="eyebrow">围绕研究问题，往前走一步</p><h2>从模糊的想法，<br class="mobile-break">到有依据的判断。</h2><p>刚开始做研究，或正在推进多个项目，都能从当前最需要解决的问题切入。</p></div>
+      <div class="feature-grid">
+        <article class="feature-card"><span class="feature-icon purple"><svg><use href="#i-compass"/></svg></span><span class="feature-index">01 / 研究设计</span><h3>把方向变成可研究的问题</h3><p>从兴趣或老师的反馈出发，比较研究问题、指标与方案，说明各自需要什么证据。</p><div class="example-question">“数字化与经营风险，怎么缩小题目？”</div></article>
+        <article class="feature-card"><span class="feature-icon blue"><svg><use href="#i-book"/></svg></span><span class="feature-index">02 / 文献与证据</span><h3>读懂定义，也看清适用范围</h3><p>对照论文的概念、测量和方法，把文献中的做法映射到自己的研究问题与数据字段。</p><div class="example-question">“这篇论文的指标适合我的样本吗？”</div></article>
+        <article class="feature-card"><span class="feature-icon cyan"><svg><use href="#i-data"/></svg></span><span class="feature-index">03 / 数据准备</span><h3>先看清数据，再开始分析</h3><p>接入 Excel / CSV，检查重复、缺失和合并损失；按明确口径处理变量，保留原值与记录。</p><div class="example-question">“加了控制变量，样本为什么少了？”</div></article>
+        <article class="feature-card"><span class="feature-icon blue"><svg><use href="#i-chart"/></svg></span><span class="feature-index">04 / 实际分析</span><h3>从研究方案，走到实际结果</h3><p>结合问题编写并运行 Python 或 Stata 代码。内置描述统计、固定效应分析与独立数值复核。</p><div class="example-question">“按确认的模型执行，保留样本变化。”</div></article>
+        <article class="feature-card"><span class="feature-icon purple"><svg><use href="#i-message"/></svg></span><span class="feature-index">05 / 结果与交付</span><h3>讲清结果，也交出完整材料</h3><p>结合方向、幅度和区间解释发现，比较模型与样本，整理为可编辑的 Word、LaTeX 和 PDF。</p><div class="example-question">“这张表说明什么？帮我整理成报告。”</div></article>
+        <article class="feature-card"><span class="feature-icon cyan"><svg><use href="#i-history"/></svg></span><span class="feature-index">06 / 保存与接续</span><h3>隔一段时间，也能接着做</h3><p>按项目保存文献、数据、方案与决定。保留旧版本和修改理由，从有效记录恢复下一步。</p><div class="example-question">“继续上次的项目，我们做到哪儿了？”</div></article>
+      </div>
+    </section>
+
+    <section id="showcase" class="showcase-section section">
+      <div class="container">
+        <div class="section-heading"><p class="eyebrow">真实产物，直接看看</p><h2>过程看得见，<br class="mobile-break">成果拿得走。</h2><p>下面三张图片来自项目真实生成的示例，点击即可放大或查看原文件。</p></div>
+        <div class="showcase-grid">
+          <article class="showcase-card"><button class="gallery-shot" data-image="assets/research-routes.png" data-title="研究路线对照 · 合成数据示例" aria-label="放大研究路线报告截图"><img src="assets/research-routes.png" width="1280" height="720" loading="lazy" alt="研究路线对照报告真实截图，展示描述与条件关联两条候选路线"><span class="image-action"><svg><use href="#i-expand"/></svg></span></button><div class="showcase-body"><span class="small-label">研究准备</span><h3>先比较路线，再决定怎么做</h3><p>研究问题、数据覆盖、比较方式与待核实项，一起放在同一份报告里。</p><a class="text-link" href="examples/research-routes.html" target="_blank" rel="noopener noreferrer">查看完整 HTML <svg><use href="#i-arrow"/></svg></a></div></article>
+          <article class="showcase-card"><button class="gallery-shot" data-image="assets/analysis-report.png" data-title="分析结果与证据 · 合成数据示例" aria-label="放大分析结果报告截图"><img src="assets/analysis-report.png" width="1280" height="720" loading="lazy" alt="分析结果报告真实截图，包含分析样本、回归系数和置信区间"><span class="image-action"><svg><use href="#i-expand"/></svg></span></button><div class="showcase-body"><span class="small-label">分析与复核</span><h3>每个判断，都能回到数值依据</h3><p>保留系数、标准误和区间，也交代实际样本、分析设定与来源版本。</p><a class="text-link" href="examples/analysis-report.html" target="_blank" rel="noopener noreferrer">查看完整 HTML <svg><use href="#i-arrow"/></svg></a></div></article>
+          <article class="showcase-card"><button class="gallery-shot paper-shot" data-image="assets/latex-report.png" data-title="LaTeX 结果导出 · 合成数据示例" aria-label="放大实际 PDF 报告页面"><img src="assets/latex-report.png" width="834" height="1179" loading="lazy" alt="实际生成的中文 PDF 第一页，含多模型三线表、变量定义与描述统计"><span class="image-action"><svg><use href="#i-expand"/></svg></span></button><div class="showcase-body"><span class="small-label">论文式交付</span><h3>从回归结果，到可编辑的表格</h3><p>生成中文三线表、变量定义和同样本描述统计，支持 Word 与 LaTeX / PDF。</p><a class="text-link" href="examples/latex-report.pdf" target="_blank" rel="noopener noreferrer">查看原始 PDF <svg><use href="#i-arrow"/></svg></a></div></article>
+        </div>
+        <p class="source-note">演示使用合成数据，不代表真实企业研究结论。PDF 展示为三模型排版示例。</p>
+      </div>
+    </section>
+
+    <section class="continuity section container">
+      <div class="continuity-copy"><p class="eyebrow">把精力留给关键判断</p><h2>研究不是一次对话。<br>积累，也不该停在对话里。</h2><p>这次为什么换指标？这张表对应哪个版本？上次决定补什么材料？让这些信息跟着项目一起留下。</p><ul class="check-list"><li><svg><use href="#i-check"/></svg> 每项研究有独立的文献、数据和方案目录</li><li><svg><use href="#i-check"/></svg> 旧方案与旧结果保留，修改理由可追溯</li><li><svg><use href="#i-check"/></svg> 来源变化后提醒复核，接续时核对有效版本</li></ul><a class="text-link" href="https://github.com/jyq0221/econbiz-research-copilot/blob/main/docs/research-handbook/project-records.md" target="_blank" rel="noopener noreferrer">了解项目如何保存 <svg><use href="#i-arrow"/></svg></a></div>
+      <div class="project-structure" aria-label="项目文件结构示意"><div class="structure-head"><svg><use href="#i-book"/></svg><strong>我的研究项目</strong><span>文件结构示意</span></div><div class="file-row main-file"><svg><use href="#i-file"/></svg><div><b>研究进展.md</b><span>问题、进展、下一步，一眼接上</span></div><span class="start-here">从这里继续</span></div><div class="file-row"><svg><use href="#i-book"/></svg><div><b>literature /</b><span>文献材料 · 证据笔记</span></div></div><div class="file-row"><svg><use href="#i-data"/></svg><div><b>data /</b><span>原始数据 · 字段说明 · 处理产物</span></div></div><div class="file-row"><svg><use href="#i-history"/></svg><div><b>research /</b><span>方案 · 讨论 · 决定 · 运行与报告</span></div></div><div class="structure-foot">下次打开项目，把问题接着往前推。</div></div>
+    </section>
+
+    <section id="start" class="start-section section">
+      <div class="container"><div class="section-heading"><p class="eyebrow">从一个小任务开始</p><h2>不用先写好完整假设。<br>带着现在的问题，就能开始。</h2><p>准备一个能访问文件、调用工具和执行代码的 AI Agent 环境，并配置可用模型。</p></div>
+        <div class="steps"><article><span class="step-number">01</span><h3>下载并解压项目</h3><p>下载当前使用包。流程、工具、模板和手册已经放在一起。</p><a class="text-link" href="https://github.com/jyq0221/econbiz-research-copilot/archive/refs/heads/main.zip"><svg><use href="#i-download"/></svg> 下载使用包</a></article><article><span class="step-number">02</span><h3>用 Agent 打开文件夹</h3><p>打开项目根目录，让助手读取入口。当前以 Codex 为主要实测环境。</p><a class="text-link" href="https://github.com/jyq0221/econbiz-research-copilot#开始试用" target="_blank" rel="noopener noreferrer">阅读使用说明 <svg><use href="#i-arrow"/></svg></a></article><article><span class="step-number">03</span><h3>直接说出你的问题</h3><p>提供一个想法、一篇论文或一份数据，不必先记住技能名称。</p><a class="text-link" href="https://github.com/jyq0221/econbiz-research-copilot/releases/download/trial-data-v1/econbiz-trial-data-v1.zip"><svg><use href="#i-download"/></svg> 没有数据？下载练习包</a></article></div>
+        <div class="prompt-card"><div class="prompt-top"><span><svg><use href="#i-message"/></svg> 第一条消息，可以这样说</span><button class="copy-button" id="copy-prompt"><svg><use href="#i-copy"/></svg><span>复制</span></button></div><p id="starter-prompt">我想研究企业数字化与经营风险，目前还没有数据。先帮我把这个方向拆成两三个值得比较的问题，解释它们各自需要什么数据。不清楚的地方保留待核实，暂时不用建项目。</p><p class="copy-status" id="copy-status" role="status" aria-live="polite"></p></div>
+        <p class="start-note">数据检查、保存和分析需要 Python 3.9+ 及相应依赖；Stata 仅在选择该引擎时需要。</p>
+      </div>
+    </section>
+
+    <section id="faq" class="faq-section section container"><div class="faq-heading"><p class="eyebrow">开始之前</p><h2>你可能想了解</h2><p>把使用方式讲清楚，<br>把第一步留得简单。</p><a class="text-link" href="https://github.com/jyq0221/econbiz-research-copilot" target="_blank" rel="noopener noreferrer">查看项目完整说明 <svg><use href="#i-arrow"/></svg></a></div><div class="faq-list">
+      <details open><summary>这是一个可以直接在线聊天的网站吗？<span>+</span></summary><p>这是经管研究 Copilot 的项目介绍页。实际研究在你配置的 Agent 环境中进行：本项目提供研究流程、Skills、分析工具和文件记录，AI 助手与模型服务由你的环境提供。</p></details>
+      <details><summary>不会编程，也能使用吗？<span>+</span></summary><p>你可以用自然语言说明问题，让助手检查环境、解释方案并完成受支持的操作。不需要先记住命令或技能名称；研究中的概念、测量与关键选择，仍需要结合材料理解和判断。</p></details>
+      <details><summary>没有 Stata，可以完成分析吗？<span>+</span></summary><p>可以。默认使用 Python 完成分析，内置描述统计和企业 / 年度固定效应可进行独立数值复核。Stata 为可选，当前原生路径实测 macOS arm64 与 Stata 19。</p></details>
+      <details><summary>能做哪些分析，交付什么文件？<span>+</span></summary><p>可以根据研究问题处理数据、编写并执行 Python / Stata 项目脚本。内置核验覆盖描述统计和线性固定效应；其他方法按实际检查范围记录。结果可整理为 HTML、CSV、Word、LaTeX 和 PDF，PDF 编译需要可用的 XeLaTeX 环境。</p></details>
+      <details><summary>研究记录和数据保存在哪里？<span>+</span></summary><p>研究材料保存在你指定的项目目录，或默认的 research-projects/项目标识/ 中，包含文献、数据和研究记录。接续以实际保存的文件为依据。模型调用时的数据处理方式取决于你选择的 Agent 与服务配置。</p></details>
+      <details><summary>如何看待结果和“独立复核”？<span>+</span></summary><p>独立复核用于核对样本、设定和计算结果；它不替代研究设计与因果识别。助手会保留原始值、缺失状态和各次合理结果，不按显著性挑选结论。</p></details>
+    </div></section>
+
+    <section class="final-cta container"><div><p class="eyebrow">经管研究 Copilot</p><h2>把现在的问题，<br>变成下一步。</h2><p>从一个小任务开始，让研究有依据，也有积累。</p></div><div class="final-actions"><a class="button button-primary" href="https://github.com/jyq0221/econbiz-research-copilot/archive/refs/heads/main.zip"><svg><use href="#i-download"/></svg> 下载并开始试用</a><a class="text-link" href="https://github.com/jyq0221/econbiz-research-copilot/issues/new?template=trial-feedback.md" target="_blank" rel="noopener noreferrer">告诉我们哪里卡住了 <svg><use href="#i-arrow"/></svg></a></div></section>
+  </main>
+  <footer class="site-footer container"><div><a class="brand" href="#"><span class="brand-mark"><svg><use href="#i-book"/></svg></span><span>经管研究 <b>Copilot</b></span></a><p>让研究思路更清楚，让每一步积累接得上。</p></div><div class="footer-links"><a href="https://github.com/jyq0221/econbiz-research-copilot" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://github.com/jyq0221/econbiz-research-copilot/blob/main/docs/research-handbook/principles.md" target="_blank" rel="noopener noreferrer">研究原则</a><a href="https://github.com/jyq0221/econbiz-research-copilot/blob/main/docs/research-handbook/analysis-execution.md" target="_blank" rel="noopener noreferrer">分析手册</a></div><p class="footer-version">研究准备与分析试用版 · v0.3.0a2</p></footer>
+  <button class="motion-toggle" type="button" aria-label="动态效果" aria-pressed="false" title="启用动态效果" hidden><svg class="motion-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10"/></svg><svg class="motion-play" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4 9 6-9 6z"/></svg><span>启用动效</span></button>
+  <dialog class="image-dialog" aria-labelledby="dialog-title"><div class="dialog-toolbar"><h2 id="dialog-title">示例预览</h2><button class="icon-button" id="dialog-close" aria-label="关闭图片预览"><svg><use href="#i-close"/></svg></button></div><div class="dialog-content"><img id="dialog-image" alt=""></div><p>项目实际生成 · 合成数据演示</p></dialog>
+</body>
+</html>
