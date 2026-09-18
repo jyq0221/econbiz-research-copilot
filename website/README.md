@@ -6,6 +6,8 @@
 
 ## 查看
 
+在线访问：[经管研究 Copilot](https://econbiz-research-copilot.pages.dev/)。
+
 可直接打开 `index.html`。推荐从仓库根目录启动本地预览：
 
 ```sh
@@ -31,6 +33,8 @@ python3 -m http.server 8765 --bind 127.0.0.1 --directory website
 ## 自动发布
 
 使用 Cloudflare Pages 的 GitHub 集成发布。将网页修改推送至 GitHub 的 `main` 分支后，Cloudflare 自动部署 `website/`。生产分支为 `main`，框架选择 None，构建命令留空，输出目录为 `website`。
+
+构建监听路径为 `website/*`（包含子目录）；日常修改网页以外的文件不会触发重新部署。
 
 无需安装依赖、填写构建命令或另存访问密钥。发布范围仅为 `website/`；项目其余目录不会上传到网页站点。上线状态以 Cloudflare Pages 的实际部署结果为准。
 
