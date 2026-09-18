@@ -20,7 +20,15 @@ def project_context(project):
             continue
         problem = None
         try:
-            project.require_usable(key)
+            if artifact['kind'] in {'latex_report', 'latex_build', 'latex_review'}:
+                from types import SimpleNamespace
+                from .latex_checks import read_latex_report, read_latex_build, read_latex_review
+                readers = dict(latex_report=read_latex_report, latex_build=read_latex_build, latex_review=read_latex_review)
+                readers[artifact['kind']](SimpleNamespace(project=project, root=project.base_dir), key)
+                if artifact['kind'] == 'latex_build' and artifact['content']['compile_check'] == 'failed':
+                    raise WorkflowError(artifact['content']['error'])
+            else:
+                project.require_usable(key)
             if artifact['kind'] in {'model_comparison', 'word_report', 'document_review'}:
                 from types import SimpleNamespace
                 from .comparison import read_model_comparison
@@ -33,7 +41,7 @@ def project_context(project):
         except WorkflowError as exc:
             problem = str(exc)
             issues[key] = problem
-        if artifact['kind'] in {'model_comparison', 'word_report', 'document_review'}:
+        if artifact['kind'] in {'model_comparison', 'word_report', 'document_review', 'latex_report', 'latex_build', 'latex_review'}:
             deliveries[key] = dict(version=artifact['version'], content=artifact['content'],
                                    files=artifact['files'], usable=problem is None, problem=problem)
         if artifact['kind'] == 'plan':
@@ -97,10 +105,14 @@ def render_progress(project):
         for key, item in summary['deliveries'].items():
             c = item['content']
             lines.append(f'- {key} v{item["version"]}：' + ('当前有效' if item['usable'] else '需要重新核对'))
+            if 'compile_check' in c:
+                lines.append(f'  编译：{c["compile_check"]}')
+            if 'render_check' in c:
+                lines.append(f'  渲染：{c["render_check"]}')
             if 'visual_check' in c:
-                lines.append(f'  渲染：{c.get("render_check", "not_performed")}；视觉检查：{c["visual_check"]}')
+                lines.append(f'  视觉检查：{c["visual_check"]}')
             for ref in item['files']:
-                if ref['path'].endswith(('.docx', '.md')):
+                if ref['path'].endswith(('.docx', '.md', '.tex', '.pdf')):
                     lines.append(f'  文件：[{key}]({ref["path"]})')
         lines.append('')
     if summary['issues']:

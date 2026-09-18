@@ -10,6 +10,7 @@ requires-python = ">=3.9"
 dependencies = []
 
 [project.optional-dependencies]
+latex = ["pypdf==6.10.2", "Pillow==11.3.0"]
 documents = ["python-docx==1.2.0"]
 document-review = ["python-docx==1.2.0", "pypdf==6.10.2", "Pillow==11.3.0"]
 analysis = [
