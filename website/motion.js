@@ -1,12 +1,10 @@
 (() => {
   'use strict';
   const root = document.documentElement;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-  const toggle = document.querySelector('.motion-toggle');
   const cards = [...document.querySelectorAll('.feature-card, .showcase-card')];
-  let userPaused = false;
-  let running = false;
+  const running = true;
+  root.dataset.motion = 'running';
   let scrollFrame = 0;
   let pointerFrame = 0;
   let pointerTarget = null;
@@ -18,27 +16,6 @@
     card.style.removeProperty('--pointer-x');
     card.style.removeProperty('--pointer-y');
   }
-
-  function syncMotion() {
-    running = !userPaused && !reducedMotion.matches;
-    root.dataset.motion = running ? 'running' : 'paused';
-    toggle.hidden = false;
-    toggle.disabled = reducedMotion.matches;
-    toggle.setAttribute('aria-pressed', String(running));
-    toggle.title = reducedMotion.matches ? '跟随系统：减少动态效果' : running ? '暂停动态效果' : '启用动态效果';
-    toggle.querySelector('span').textContent = reducedMotion.matches ? '已减少动效' : running ? '暂停动效' : '启用动效';
-    if (!running) {
-      document.querySelector('#hero-screenshot').getAnimations?.().forEach(animation => animation.cancel());
-      cards.forEach(resetCard);
-      cancelAnimationFrame(pointerFrame);
-      pointerFrame = 0;
-      pointerTarget = null;
-      document.querySelectorAll('.reveal-ready').forEach(element => element.classList.add('is-visible'));
-    }
-  }
-  toggle.addEventListener('click', () => { userPaused = !userPaused; syncMotion(); });
-  reducedMotion.addEventListener('change', syncMotion);
-  syncMotion();
 
   const revealTargets = document.querySelectorAll('.section-heading, .feature-card, .showcase-card, .continuity-copy, .project-structure, .steps article, .prompt-card, .faq-heading, .faq-list, .final-cta');
   if ('IntersectionObserver' in window) {
