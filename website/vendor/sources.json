@@ -1,0 +1,19 @@
+{
+  "retrieved": "2026-09-26",
+  "assets": [
+    {
+      "file": "three-0.169.0.module.min.js",
+      "version": "0.169.0",
+      "url": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js",
+      "bytes": 687458,
+      "sha256": "f7cee3c7533449a1505cc12cb5128b89e3d4fd3d7ea62b05f9f5464a217472ee"
+    },
+    {
+      "file": "echarts-5.6.0.min.js",
+      "version": "5.6.0",
+      "url": "https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js",
+      "bytes": 1034102,
+      "sha256": "bf4a223524e40b77c304bec67e1222cf551f14880cf42c69dc046558e11c07b1"
+    }
+  ]
+}
