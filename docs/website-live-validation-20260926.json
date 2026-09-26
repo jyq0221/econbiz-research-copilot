@@ -1,0 +1,128 @@
+{
+  "url": "https://econbiz-research-copilot.pages.dev/",
+  "release_commit": "8fa6b980d8670f9662d4121187e199251c8ba66b",
+  "maintenance_website_commit": "b12db94f70d424b952b66a5fb9692e07730c6fde",
+  "deployment_id": "0e3a54a3-7a21-473f-8abc-4653608ece6c",
+  "check": {
+    "name": "Cloudflare Pages",
+    "status": "completed",
+    "conclusion": "success",
+    "completed_at": "2026-09-26T10:56:46Z"
+  },
+  "files": [
+    {
+      "file": "README.md",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "index.html",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "interactions.css",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "interactions.js",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "motion.js",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "research-network.js",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "styles.css",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "theme.css",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "vendor/README.md",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "vendor/echarts-5.6.0.min.js",
+      "http_status": "200",
+      "match": true,
+      "error": "",
+      "verified_url_suffix": "?v=8fa6b98"
+    },
+    {
+      "file": "vendor/echarts-LICENSE.txt",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "vendor/echarts-NOTICE.txt",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "vendor/sources.json",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "vendor/three-0.169.0.module.min.js",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "vendor/three-LICENSE.txt",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "app.js",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "showcase.css",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    },
+    {
+      "file": "examples/analysis-report.html",
+      "http_status": "200",
+      "match": true,
+      "error": ""
+    }
+  ],
+  "browser_verified": [
+    "hero_network_visible",
+    "workflow_stage_selection",
+    "coefficient_selection_and_chart_visible"
+  ]
+}
